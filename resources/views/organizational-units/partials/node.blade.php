@@ -1,12 +1,23 @@
-<tr onclick="showEmployees({{ $unit->id }})"
+<tr 
+    onclick="toggleNode(event, this, {{ $unit->id }})"
     data-id="{{ $unit->id }}"
     data-parent="{{ $unit->parent_id }}"
+    data-level="{{ $level }}"
     class="cursor-pointer hover:bg-gray-100">
     <td class="p-2">{{ $unit->id }}</td>
 
     <td class="p-2">
         {!! str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level) !!}
-        <span class="unit-name">{{ $unit->name }}</span>
+        @if($unit->children && $unit->children->count())
+                <span class="toggle-icon mr-1 inline-block transition-transform">▼</span>
+            @else
+                <span class="inline-block w-3 mr-1"></span>
+            @endif
+        <span 
+            class="unit-name"
+            onclick="event.stopPropagation(); showEmployees({{ $unit->id }})">
+            {{ $unit->name }}
+        </span>
     </td>
 
     <td class="p-2 text-right space-x-2">

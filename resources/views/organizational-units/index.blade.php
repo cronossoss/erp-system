@@ -123,7 +123,10 @@ function deleteUnit(id){
             "X-HTTP-Method-Override":"DELETE"
         }
     })
-    .then(() => location.reload());
+    .then(() => {
+        showToast('Jedinica obrisana');
+        location.reload();
+    });
 }
 
 // EDIT (POPULATE)
@@ -159,7 +162,7 @@ function saveUnit(){
     }
 
     if(!name){
-        alert('Naziv je obavezan');
+        showToast('Naziv je obavezan', 'error');
         return;
     }
 
@@ -206,6 +209,8 @@ function saveUnit(){
         }
     }
 
+    showToast('Jedinica izmenjena'); // 👈 OVDE
+
     closeUnitModal();
 });
 
@@ -224,7 +229,49 @@ function saveUnit(){
             })
         })
         .then(res => res.json())
-        .then(() => location.reload());
+        .then(data => {
+
+            let parent = el('parent_id').value ?? '';
+
+            // ako ima parent → refresh
+                location.reload();
+                return;
+          
+
+            // dodaj u root tabelu
+            let tbody = document.querySelector('table tbody');
+
+            let newRow = document.createElement('tr');
+            newRow.setAttribute('data-id', data.id);
+            newRow.setAttribute('data-parent', '');
+            newRow.className = "cursor-pointer hover:bg-gray-100";
+
+            newRow.innerHTML = `
+                <td class="p-2">${data.id}</td>
+                <td class="p-2">
+                    <span class="unit-name">${data.name}</span>
+                </td>
+                <td class="p-2 text-right space-x-2">
+                    <button 
+                        onclick="event.stopPropagation(); editUnit(${data.id}, '${data.name}', '')"
+                        class="bg-yellow-500 text-white px-2 py-1 rounded text-xs">
+                        Edit
+                    </button>
+
+                    <button 
+                        onclick="event.stopPropagation(); deleteUnit(${data.id})"
+                        class="bg-red-500 text-white px-2 py-1 rounded">
+                        🗑
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(newRow);
+
+            showToast('Jedinica dodata');
+
+            closeUnitModal();
+        });
     }
 }
 
@@ -338,5 +385,66 @@ document.addEventListener('click', function(e){
     }
 
 });
+
+function showToast(message, type = 'success'){
+
+    let toast = document.getElementById('toast');
+
+    toast.innerText = message;
+    toast.classList.remove('hidden');
+
+    // boje
+    if(type === 'success'){
+        toast.className = "fixed top-5 right-5 px-4 py-2 rounded text-white shadow-lg bg-green-500 z-50";
+    } else {
+        toast.className = "fixed top-5 right-5 px-4 py-2 rounded text-white shadow-lg bg-red-500 z-50";
+    }
+
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 2500);
+}
+
+function toggleNode(e, row, id){
+
+    // ako je klik na dugme → ignoriši (edit/delete)
+    if(e.target.closest('button')) return;
+
+    // ako je klik na naziv (employees) → ignoriši
+    if(e.target.closest('.unit-name')) return;
+
+    let level = parseInt(row.dataset.level);
+    let next = row.nextElementSibling;
+
+    if(!next) return;
+
+    let icon = row.querySelector('.toggle-icon');
+
+    // da li ima children
+    if(parseInt(next.dataset.level) <= level) return;
+
+    // proveri da li su trenutno sakriveni ili ne
+    let hide = !next.classList.contains('hidden');
+
+    while(next && parseInt(next.dataset.level) > level){
+
+        if(hide){
+            next.classList.add('hidden');
+        } else {
+            next.classList.remove('hidden');
+        }
+
+        next = next.nextElementSibling;
+    }
+
+    // rotacija strelice
+    if(icon){
+        if(hide){
+            icon.style.transform = 'rotate(-90deg)'; // ▶
+        } else {
+            icon.style.transform = 'rotate(0deg)'; // ▼
+        }
+    }
+}
 
 </script>

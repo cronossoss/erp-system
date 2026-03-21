@@ -81,6 +81,8 @@
 
     </div>
 
+    <div id="toast" class="fixed top-5 right-5 hidden px-4 py-2 rounded text-white shadow-lg z-50"></div>
+
 </body>
 
 </html>
