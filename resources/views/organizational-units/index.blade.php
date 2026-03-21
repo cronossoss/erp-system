@@ -59,11 +59,28 @@
                 <tr>
                     <td colspan="4" class="p-2 text-center">Učitavanje...</td>
                 </tr>
-</tbody>
+        </tbody>
         </table>
 
         <div class="text-right mt-4">
             <button onclick="closeEmployeesModal()" class="px-4 py-2 border rounded">
+                Zatvori
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- EMPLOYEE DETAIL MODAL -->
+<div id="employeeDetailModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
+    <div class="bg-white rounded shadow-lg w-96 p-6">
+
+        <h2 class="text-lg font-bold mb-4">Detalji zaposlenog</h2>
+
+        <div id="employeeDetailContent" class="space-y-2 text-sm"></div>
+
+        <div class="text-right mt-4">
+            <button onclick="closeEmployeeDetail()" class="px-4 py-2 border rounded">
                 Zatvori
             </button>
         </div>
@@ -215,11 +232,14 @@ function showEmployees(unitId){
 
         data.forEach(emp => {
             tbody.innerHTML += `
-                <tr class="border-b hover:bg-gray-50">
+                <tr onclick="showEmployeeDetail(${emp.id})"
+                    class="border-b hover:bg-gray-50 cursor-pointer">
+
                     <td class="p-2">${emp.employee_number ?? ''}</td>
                     <td class="p-2">${emp.first_name} ${emp.last_name}</td>
                     <td class="p-2">${emp.position ?? ''}</td>
                     <td class="p-2">${emp.organizational_unit_name ?? ''}</td>
+
                 </tr>
             `;
         });
@@ -229,6 +249,29 @@ function showEmployees(unitId){
         tbody.innerHTML = '<tr><td colspan="4" class="p-2 text-center text-red-500">Greška pri učitavanju</td></tr>';
     });
 }
+
+function showEmployeeDetail(id){
+
+    fetch(`/employees/${id}/json`)
+    .then(res => res.json())
+    .then(emp => {
+
+        document.getElementById('employeeDetailContent').innerHTML = `
+            <div><b>Matični broj:</b> ${emp.employee_number}</div>
+            <div><b>Ime:</b> ${emp.first_name} ${emp.last_name}</div>
+            <div><b>Pozicija:</b> ${emp.position ?? '-'}</div>
+            <div><b>Jedinica:</b> ${emp.organizational_unit ?? '-'}</div>
+            <div><b>Ugovor:</b> ${emp.contract_type}</div>
+        `;
+
+        document.getElementById('employeeDetailModal').classList.remove('hidden');
+    });
+}
+
+function closeEmployeeDetail(){
+    document.getElementById('employeeDetailModal').classList.add('hidden');
+}
+
 
 function closeEmployeesModal(){
     document.getElementById('employeesModal').classList.add('hidden');

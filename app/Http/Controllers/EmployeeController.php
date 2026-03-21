@@ -124,4 +124,18 @@ class EmployeeController extends Controller
             ];
         }));
     }
+
+    public function showJson($id)
+    {
+        $e = \App\Models\Employee::with('organizationalUnit')->findOrFail($id);
+
+        return response()->json([
+            'employee_number' => $e->employee_number,
+            'first_name' => $e->first_name,
+            'last_name' => $e->last_name,
+            'position' => $e->position,
+            'contract_type' => $e->contract_type,
+            'organizational_unit' => optional($e->organizationalUnit)->name,
+        ]);
+    }
 }
