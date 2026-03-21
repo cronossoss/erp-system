@@ -174,6 +174,22 @@ function saveUnit(){
     .catch(err => console.error(err));
 }
 
+function filterByUnit(unitId){
+
+    fetch(`/employees/by-unit/${unitId}`)
+    .then(res => res.json())
+    .then(data => {
+
+        let tbody = document.querySelector("tbody");
+        tbody.innerHTML = '';
+
+        data.forEach(emp => {
+            tbody.insertAdjacentHTML('beforeend', renderRow(emp));
+        });
+
+    });
+}
+
 // CRUD
 function saveEmployee(){
 

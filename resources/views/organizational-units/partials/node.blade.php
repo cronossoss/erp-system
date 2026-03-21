@@ -1,4 +1,4 @@
-<tr>
+<tr onclick="showEmployees({{ $unit->id }})" class="cursor-pointer hover:bg-gray-100">
     <td class="p-2">{{ $unit->id }}</td>
 
     <td class="p-2">

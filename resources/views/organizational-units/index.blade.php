@@ -33,9 +33,39 @@
 
 </div>
 
+
+
 @include('organizational-units.partials.modals')
 
 @endsection
+
+<!-- EMPLOYEES MODAL -->
+<div id="employeesModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
+    <div class="bg-white rounded shadow-lg w-3/4 max-h-[80vh] overflow-auto p-6">
+
+        <h2 class="text-lg font-bold mb-4">Zaposleni</h2>
+
+        <table class="w-full text-sm">
+            <thead class="bg-gray-200 text-xs uppercase">
+                <tr>
+                    <th class="p-2">MB</th>
+                    <th class="p-2">Ime</th>
+                    <th class="p-2">Pozicija</th>
+                    <th class="p-2">Jedinica</th>
+                </tr>
+            </thead>
+
+            <tbody id="employeesTable"></tbody>
+        </table>
+
+        <div class="text-right mt-4">
+            <button onclick="closeEmployeesModal()" class="px-4 py-2 border rounded">
+                Zatvori
+            </button>
+        </div>
+
+    </div>
+</div>
 
 <script>
 function el(id){ return document.getElementById(id); }
@@ -154,4 +184,38 @@ function saveUnit(){
         .then(() => location.reload());
     }
 }
+
+function showEmployees(unitId){
+
+    fetch(`/employees/by-unit/${unitId}`)
+    .then(res => res.json())
+    .then(data => {
+
+        let tbody = document.getElementById('employeesTable');
+        tbody.innerHTML = '';
+
+        if(data.length === 0){
+            tbody.innerHTML = '<tr><td colspan="4" class="p-2 text-center">Nema zaposlenih</td></tr>';
+        }
+
+        data.forEach(emp => {
+            tbody.innerHTML += `
+                <tr class="border-b">
+                    <td class="p-2">${emp.employee_number ?? ''}</td>
+                    <td class="p-2">${emp.first_name} ${emp.last_name}</td>
+                    <td class="p-2">${emp.position ?? ''}</td>
+                    <td class="p-2">${emp.organizational_unit_name ?? ''}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('employeesModal').classList.remove('hidden');
+    });
+}
+
+function closeEmployeesModal(){
+    document.getElementById('employeesModal').classList.add('hidden');
+}
+
+
 </script>

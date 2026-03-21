@@ -13,19 +13,14 @@ class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Employee::with('organizationalUnit');
+        $query = \App\Models\Employee::with('organizationalUnit');
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-
-            $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'LIKE', "%$search%")
-                    ->orWhere('last_name', 'LIKE', "%$search%");
-            });
+        if ($request->unit) {
+            $query->where('organizational_unit_id', $request->unit);
         }
 
-        $employees = $query->paginate(10)->withQueryString();
-        $units = OrganizationalUnit::all();
+        $employees = $query->paginate(10);
+        $units = \App\Models\OrganizationalUnit::all();
 
         return view('employees.index', compact('employees', 'units'));
     }
@@ -108,5 +103,25 @@ class EmployeeController extends Controller
     public function __construct(EmployeeService $service)
     {
         $this->service = $service;
+    }
+
+    public function byUnit($id)
+    {
+        $employees = \App\Models\Employee::with('organizationalUnit')
+            ->where('organizational_unit_id', $id)
+            ->get();
+
+        return response()->json($employees->map(function ($e) {
+            return [
+                'id' => $e->id,
+                'employee_number' => $e->employee_number,
+                'first_name' => $e->first_name,
+                'last_name' => $e->last_name,
+                'position' => $e->position,
+                'organizational_unit_name' => optional($e->organizationalUnit)->name,
+                'organizational_unit_id' => $e->organizational_unit_id,
+                'contract_type' => $e->contract_type
+            ];
+        }));
     }
 }

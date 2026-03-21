@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     // ✅ EMPLOYEES
     Route::get('/employees/search', [EmployeeController::class, 'search']);
     Route::resource('employees', EmployeeController::class)->except(['show']);
+    Route::get('/employees/by-unit/{id}', [EmployeeController::class, 'byUnit']);
 
     // ✅ ORGANIZATIONAL UNITS (OVO JE DOVOLJNO!)
     Route::resource('organizational-units', OrganizationalUnitController::class);
