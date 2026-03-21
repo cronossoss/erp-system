@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\OrganizationalUnit;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
+use App\Services\EmployeeService;
 
 class EmployeeController extends Controller
 {
@@ -56,68 +59,54 @@ class EmployeeController extends Controller
         );
     }
 
-    public function store(Request $request)
+    public function store(StoreEmployeeRequest $request)
     {
-        $validated = $request->validate([
-            'employee_number' => [
-            'required',
-            'digits:5',
-            'unique:employees,employee_number'
-            ],
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'position' => 'nullable|string|max:255',
-            'organizational_unit_id' => 'nullable|exists:organizational_units,id',
-            'contract_type' => 'required|string',
-        ]);
-
-        $employee = Employee::create($validated);
-        $employee->load('organizationalUnit');
+        $employee = $this->service->create($request->validated());
 
         return response()->json([
             'id' => $employee->id,
+            'employee_number' => $employee->employee_number,
             'first_name' => $employee->first_name,
             'last_name' => $employee->last_name,
             'position' => $employee->position,
-            'organizational_unit_name' => optional($employee->organizationalUnit)->name ?? '',
-            'organizational_unit_id' => $employee->organizational_unit_id
+            'organizational_unit_name' => optional($employee->organizationalUnit)->name,
+            'organizational_unit_id' => $employee->organizational_unit_id,
+            'contract_type' => $employee->contract_type
         ]);
     }
 
-    public function update(Request $request, $id)
+
+    public function update(UpdateEmployeeRequest $request, $id)
     {
         $employee = Employee::findOrFail($id);
 
-        $validated = $request->validate([
-            'employee_number' => [
-                'required',
-                'digits:5',
-                'unique:employees,employee_number,' . $employee->id
-            ],
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'position' => 'nullable|string|max:255',
-            'organizational_unit_id' => 'nullable|exists:organizational_units,id',
-            'contract_type' => 'required|string',
-        ]);
-
-        $employee->update($validated);
-        $employee->load('organizationalUnit');
+        $employee = $this->service->update($employee, $request->validated());
 
         return response()->json([
             'id' => $employee->id,
+            'employee_number' => $employee->employee_number,
             'first_name' => $employee->first_name,
             'last_name' => $employee->last_name,
             'position' => $employee->position,
-            'organizational_unit_name' => optional($employee->organizationalUnit)->name ?? '',
-            'organizational_unit_id' => $employee->organizational_unit_id
+            'organizational_unit_name' => optional($employee->organizationalUnit)->name,
+            'organizational_unit_id' => $employee->organizational_unit_id,
+            'contract_type' => $employee->contract_type
         ]);
     }
 
     public function destroy($id)
     {
-        Employee::findOrFail($id)->delete();
+        $employee = Employee::findOrFail($id);
+
+        $this->service->delete($employee);
 
         return response()->json(['success' => true]);
+    }
+
+    protected $service;
+
+    public function __construct(EmployeeService $service)
+    {
+        $this->service = $service;
     }
 }

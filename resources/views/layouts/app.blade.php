@@ -30,7 +30,8 @@
                     👥 Radnici
                 </a>
 
-                <a href="#" class="block px-3 py-2 rounded hover:bg-gray-700">
+                <a href="{{ route('organizational-units.index') }}"
+                class="block px-3 py-2 rounded {{ request()->is('organizational-units*') ? 'bg-gray-700 border-l-4 border-blue-400' : 'hover:bg-gray-700' }}">
                     🏢 Organizacija
                 </a>
 

@@ -9,23 +9,21 @@ class OrganizationalUnitController extends Controller
 {
     public function index()
     {
-        // 🔥 ROOT + CHILDREN (za tree)
-        $units = OrganizationalUnit::with('children.children')
+        $units = OrganizationalUnit::with('children')
             ->whereNull('parent_id')
-            ->orderBy('name')
             ->get();
 
-        return view('organizational-units.index', compact('units'));
+        $allUnits = OrganizationalUnit::all();
+
+        return view('organizational-units.index', compact('units', 'allUnits'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:organizational_units,id'
+        $unit = OrganizationalUnit::create([
+            'name' => $request->name,
+            'parent_id' => $request->parent_id
         ]);
-
-        $unit = OrganizationalUnit::create($validated);
 
         return response()->json($unit);
     }
@@ -34,19 +32,18 @@ class OrganizationalUnitController extends Controller
     {
         $unit = OrganizationalUnit::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:organizational_units,id'
+        $unit->update([
+            'name' => $request->name,
+            'parent_id' => $request->parent_id
         ]);
-
-        $unit->update($validated);
 
         return response()->json($unit);
     }
 
     public function destroy($id)
     {
-        OrganizationalUnit::findOrFail($id)->delete();
+        $unit = OrganizationalUnit::findOrFail($id);
+        $unit->delete();
 
         return response()->json(['success' => true]);
     }

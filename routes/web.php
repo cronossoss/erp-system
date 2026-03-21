@@ -29,8 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('employees', EmployeeController::class)->except(['show']);
 
     // ✅ ORGANIZATIONAL UNITS (OVO JE DOVOLJNO!)
-    Route::resource('organizational-units', OrganizationalUnitController::class)
-        ->except(['create', 'edit', 'show']);
+    Route::resource('organizational-units', OrganizationalUnitController::class);
 
     Route::post('/organizational-units', [OrganizationalUnitController::class, 'store'])
         ->name('organizational-units.store');

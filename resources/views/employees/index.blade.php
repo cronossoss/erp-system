@@ -150,7 +150,10 @@ function saveUnit(){
             parent_id: parent
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error('Greška pri čuvanju');
+        return res.json();
+    })
     .then(unit => {
 
         // 🔥 DODAJ U SELECT
