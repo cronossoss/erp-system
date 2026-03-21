@@ -59,10 +59,16 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'employee_number' => [
+            'required',
+            'digits:5',
+            'unique:employees,employee_number'
+            ],
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
-            'organizational_unit_id' => 'nullable|exists:organizational_units,id'
+            'organizational_unit_id' => 'nullable|exists:organizational_units,id',
+            'contract_type' => 'required|string',
         ]);
 
         $employee = Employee::create($validated);
@@ -83,10 +89,16 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($id);
 
         $validated = $request->validate([
+            'employee_number' => [
+                'required',
+                'digits:5',
+                'unique:employees,employee_number,' . $employee->id
+            ],
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
-            'organizational_unit_id' => 'nullable|exists:organizational_units,id'
+            'organizational_unit_id' => 'nullable|exists:organizational_units,id',
+            'contract_type' => 'required|string',
         ]);
 
         $employee->update($validated);

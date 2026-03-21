@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('organizational-units', OrganizationalUnitController::class)
         ->except(['create', 'edit', 'show']);
 
+    Route::post('/organizational-units', [OrganizationalUnitController::class, 'store'])
+        ->name('organizational-units.store');
+
     // ✅ PROFILE
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -8,6 +8,7 @@ class Employee extends Model
 {
     protected $fillable = [
         'user_id',
+        'employee_number',
         'first_name',
         'last_name',
         'email',
@@ -15,13 +16,14 @@ class Employee extends Model
         'hire_date',
         'position',
         'organizational_unit_id',
+        'contract_type',
         'active'
     ];
 
     public function user()
-    {
-        return $this->belongsTo(\App\Models\User::class);
-    }
+        {
+            return $this->hasOne(User::class);
+        }
 
     public function organizationalUnit()
     {

@@ -1,113 +1,119 @@
-<!-- OVERLAY -->
-<div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-    onclick="closeAllModals()"></div>
+<div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
 
-<!-- ADD MODAL -->
+<!-- ADD -->
 <div id="modal" class="hidden fixed inset-0 flex items-center justify-center z-50">
-    <div class="bg-white rounded shadow-lg p-6 w-96">
+<div class="bg-white p-6 rounded w-96">
 
-        <h2 class="text-xl font-bold mb-4">Dodaj zaposlenog</h2>
+<h3 class="text-lg font-bold mb-3">Dodaj zaposlenog</h3>
 
-        <input type="text" id="first_name" placeholder="Ime"
-            class="w-full border rounded px-3 py-2 mb-2">
+<input id="employee_number" placeholder="Matični broj (5 cifara)"
+class="w-full border px-3 py-2 mb-2">
 
-        <input type="text" id="last_name" placeholder="Prezime"
-            class="w-full border rounded px-3 py-2 mb-2">
+<input id="first_name" placeholder="Ime" class="w-full border px-3 py-2 mb-2">
+<input id="last_name" placeholder="Prezime" class="w-full border px-3 py-2 mb-2">
+<input id="position" placeholder="Pozicija" class="w-full border px-3 py-2 mb-2">
 
-        <input type="text" id="position" placeholder="Pozicija"
-            class="w-full border rounded px-3 py-2 mb-2">
+<select id="contract_type" class="w-full border px-3 py-2 mb-2">
+<option value="">-- Ugovor --</option>
+<option value="neodredjeno">Neodređeno</option>
+<option value="odredjeno">Određeno</option>
+<option value="drugo">Drugo</option>
+</select>
 
-        <div class="flex gap-2 mb-4">
-            <select id="unit_select" class="w-full border rounded px-3 py-2">
-                @foreach($units as $unit)
-                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                @endforeach
-            </select>
+<div class="flex gap-2 mb-4">
+    <select id="unit_select" class="w-full border px-3 py-2">
+        @foreach($units as $unit)
+        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+        @endforeach
+    </select>
 
-            <button onclick="openUnitModal()" class="bg-green-500 text-white px-3 rounded">+</button>
-        </div>
-
-        <div class="flex justify-end gap-2">
-            <button onclick="closeModal()" class="px-4 py-2 border rounded">Zatvori</button>
-            <button onclick="saveEmployee()" class="bg-blue-600 text-white px-4 py-2 rounded">
-                Sačuvaj
-            </button>
-        </div>
-
-    </div>
+    <button onclick="openUnitModal()"
+        class="bg-green-500 text-white px-3 rounded">
+        +
+    </button>
 </div>
 
-<!-- EDIT MODAL -->
+<div class="flex justify-end gap-2">
+<button onclick="closeModal()">Zatvori</button>
+<button onclick="saveEmployee()" class="bg-blue-600 text-white px-4 py-2 rounded">
+Sačuvaj
+</button>
+</div>
+
+</div>
+</div>
+
+<!-- EDIT -->
 <div id="editModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
-    <div class="bg-white rounded shadow-lg p-6 w-96">
+<div class="bg-white p-6 rounded w-96">
 
-        <h2 class="text-xl font-bold mb-4">Izmeni zaposlenog</h2>
+<input type="hidden" id="edit_id">
 
-        <input type="hidden" id="edit_id">
+<input id="edit_employee_number" class="w-full border px-3 py-2 mb-2">
+<input id="edit_first_name" class="w-full border px-3 py-2 mb-2">
+<input id="edit_last_name" class="w-full border px-3 py-2 mb-2">
+<input id="edit_position" class="w-full border px-3 py-2 mb-2">
 
-        <input type="text" id="edit_first_name" placeholder="Ime"
-            class="w-full border rounded px-3 py-2 mb-2">
+<select id="edit_contract_type" class="w-full border px-3 py-2 mb-2">
+<option value="neodredjeno">Neodređeno</option>
+<option value="odredjeno">Određeno</option>
+<option value="drugo">Drugo</option>
+</select>
 
-        <input type="text" id="edit_last_name" placeholder="Prezime"
-            class="w-full border rounded px-3 py-2 mb-2">
+<div class="flex gap-2 mb-4">
+    <select id="edit_unit_select" class="w-full border px-3 py-2">
+        @foreach($units as $unit)
+        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+        @endforeach
+    </select>
 
-        <input type="text" id="edit_position" placeholder="Pozicija"
-            class="w-full border rounded px-3 py-2 mb-2">
+    <button onclick="openUnitModal()"
+        class="bg-green-500 text-white px-3 rounded">
+        +
+    </button>
+</div>
 
-        <div class="flex gap-2 mb-4">
-            <select id="edit_unit_select" class="w-full border rounded px-3 py-2">
-                @foreach($units as $unit)
-                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                @endforeach
-            </select>
+<div class="flex justify-end gap-2">
+<button onclick="closeEditModal()">Zatvori</button>
+<button onclick="updateEmployee()" class="bg-blue-600 text-white px-4 py-2 rounded">
+Sačuvaj
+</button>
+</div>
 
-            <button onclick="openUnitModal()" class="bg-green-500 text-white px-3 rounded">+</button>
-        </div>
+</div>
+</div>
 
-        <div class="flex justify-end gap-2">
-            <button onclick="closeEditModal()" class="px-4 py-2 border rounded">Zatvori</button>
-            <button onclick="updateEmployee()" class="bg-blue-600 text-white px-4 py-2 rounded">
-                Sačuvaj
-            </button>
-        </div>
-
-    </div>
+<div id="toast" class="hidden fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded">
+<span id="toast-msg"></span>
 </div>
 
 <!-- UNIT MODAL -->
 <div id="unitModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
-    <div class="bg-white rounded shadow-lg p-6 w-80">
+    <div class="bg-white p-6 rounded w-80">
 
-        <h3 class="text-lg font-bold mb-4">Nova jedinica</h3>
+        <h3 class="text-lg font-bold mb-3">Nova organizaciona jedinica</h3>
 
         <input type="text" id="unit_name" placeholder="Naziv"
-            class="w-full border rounded px-3 py-2 mb-3">
+            class="w-full border px-3 py-2 mb-3">
 
         <div class="mb-4">
-            <label class="block text-sm mb-1">Nadređena jedinica</label>
+            <label class="text-sm">Nadređena jedinica</label>
 
-            <select id="parent_id" class="w-full border rounded px-3 py-2">
+            <select id="parent_id" class="w-full border px-3 py-2 mt-1">
                 <option value="">-- Nema (root) --</option>
 
                 @foreach($units as $u)
-                <option value="{{ $u->id }}">
-                    {{ $u->name }}
-                </option>
+                <option value="{{ $u->id }}">{{ $u->name }}</option>
                 @endforeach
             </select>
         </div>
 
         <div class="flex justify-end gap-2">
-            <button onclick="closeUnitModal()" class="px-4 py-2 border rounded">Zatvori</button>
+            <button onclick="closeUnitModal()">Zatvori</button>
             <button onclick="saveUnit()" class="bg-blue-600 text-white px-4 py-2 rounded">
                 Sačuvaj
             </button>
         </div>
 
     </div>
-</div>
-
-<!-- TOAST -->
-<div id="toast" class="hidden fixed top-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow z-50">
-    <span id="toast-msg"></span>
 </div>
