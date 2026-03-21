@@ -109,30 +109,7 @@ function closeUnitModal(){
 }
 
 // CREATE
-function saveUnit(){
 
-    let name = el('unit_name').value;
-    let parent = el('parent_id').value;
-
-    if(!name){
-        alert('Naziv je obavezan');
-        return;
-    }
-
-    fetch("{{ route('organizational-units.store') }}", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json",
-            "X-CSRF-TOKEN":csrf()
-        },
-        body: JSON.stringify({
-            name: name,
-            parent_id: parent
-        })
-    })
-    .then(res => res.json())
-    .then(() => location.reload());
-}
 
 // DELETE
 function deleteUnit(id){
@@ -152,12 +129,21 @@ function deleteUnit(id){
 // EDIT (POPULATE)
 function editUnit(id, name, parent){
 
-    el('unit_name').value = name;
+    let row = document.querySelector(`tr[data-id='${id}']`);
+    let currentName = name;
+
+    if(row){
+        let nameCell = row.querySelector('.unit-name');
+        if(nameCell){
+            currentName = nameCell.innerText.trim();
+        }
+    }
+
+    el('unit_name').value = currentName;
     el('parent_id').value = parent;
 
     el('unitModal').classList.remove('hidden');
 
-    // prebacimo save u update
     window.currentUnitId = id;
 }
 
@@ -167,12 +153,17 @@ function saveUnit(){
     let name = el('unit_name').value;
     let parent = el('parent_id').value;
 
+   let row = document.querySelector(`tr[data-id='${window.currentUnitId}']`);
+    if(row){
+        oldParent = row.dataset.parent;
+    }
+
     if(!name){
         alert('Naziv je obavezan');
         return;
     }
 
-    // ako edit
+    // EDIT
     if(window.currentUnitId){
 
         fetch(`/organizational-units/${window.currentUnitId}`, {
@@ -187,10 +178,40 @@ function saveUnit(){
                 parent_id: parent
             })
         })
-        .then(() => location.reload());
+        .then(() => {
+
+    let row = document.querySelector(`tr[data-id='${window.currentUnitId}']`);
+
+    if(row){
+
+        let oldParent = row.dataset.parent ?? '';
+        let newParent = parent ?? '';
+
+        // DEBUG (slobodno ostavi privremeno)
+        console.log("OLD:", oldParent, "NEW:", newParent);
+
+        // ako parent NIJE isti → refresh
+        if(oldParent != newParent){
+            location.reload();
+            return;
+        }
+
+        // update name
+        let nameCell = row.querySelector('.unit-name');
+        if(nameCell){
+            let nameSpan = row.querySelector('.unit-name');
+                if(nameSpan){
+                    nameSpan.textContent = name;
+                }
+        }
+    }
+
+    closeUnitModal();
+});
 
     } else {
 
+        // CREATE
         fetch("{{ route('organizational-units.store') }}", {
             method:"POST",
             headers:{
@@ -202,6 +223,7 @@ function saveUnit(){
                 parent_id: parent
             })
         })
+        .then(res => res.json())
         .then(() => location.reload());
     }
 }
@@ -278,8 +300,10 @@ function closeEmployeesModal(){
     document.getElementById('employeesOverlay').classList.add('hidden');
 }
 
-document.getElementById('employeesOverlay')
-    .addEventListener('click', closeEmployeesModal);
+let overlay = document.getElementById('employeesOverlay');
+if(overlay){
+    overlay.addEventListener('click', closeEmployeesModal);
+}
 
 document.addEventListener('keydown', function(e){
     if(e.key === "Escape"){
@@ -287,5 +311,32 @@ document.addEventListener('keydown', function(e){
     }
 });
 
+
+document.addEventListener('click', function(e){
+
+    // EDIT
+    let editBtn = e.target.closest('.btn-edit');
+    if(editBtn){
+        e.stopPropagation();
+
+        let id = editBtn.dataset.id;
+        let name = editBtn.dataset.name;
+        let parent = editBtn.dataset.parent;
+
+        editUnit(id, name, parent);
+        return;
+    }
+
+    // DELETE
+    let deleteBtn = e.target.closest('.btn-delete');
+    if(deleteBtn){
+        e.stopPropagation();
+
+        let id = deleteBtn.dataset.id;
+        deleteUnit(id);
+        return;
+    }
+
+});
 
 </script>
