@@ -73,13 +73,17 @@
 
 <!-- EMPLOYEE DETAIL MODAL -->
 <div id="employeeDetailModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
-    <div class="bg-white rounded shadow-lg w-96 p-6">
+    <div class="bg-white rounded shadow-lg w-[700px] p-6">
 
         <h2 class="text-lg font-bold mb-4">Detalji zaposlenog</h2>
 
-        <div id="employeeDetailContent" class="space-y-2 text-sm"></div>
+        <div id="employeeDetailContent" class="grid grid-cols-2 gap-4 text-sm"></div>
 
-        <div class="text-right mt-4">
+        <div class="text-right mt-4 space-x-2">
+            <button onclick="enableEdit()" class="px-4 py-2 bg-yellow-500 text-white rounded">
+                Izmeni
+            </button>
+
             <button onclick="closeEmployeeDetail()" class="px-4 py-2 border rounded">
                 Zatvori
             </button>
@@ -321,16 +325,41 @@ function showEmployees(unitId){
 
 function showEmployeeDetail(id){
 
+    window.currentEmployeeId = id;
+
     fetch(`/employees/${id}/json`)
     .then(res => res.json())
     .then(emp => {
+        window.currentEmployeeData = emp;
 
         document.getElementById('employeeDetailContent').innerHTML = `
-            <div><b>Matični broj:</b> ${emp.employee_number}</div>
-            <div><b>Ime:</b> ${emp.first_name} ${emp.last_name}</div>
-            <div><b>Pozicija:</b> ${emp.position ?? '-'}</div>
-            <div><b>Jedinica:</b> ${emp.organizational_unit ?? '-'}</div>
-            <div><b>Ugovor:</b> ${emp.contract_type}</div>
+
+            <div><b>Matični broj:</b> ${emp.employee_number ?? '-'}</div>
+            <div><b>Ime:</b> ${emp.first_name ?? '-'}</div>
+
+            <div><b>Prezime:</b> ${emp.last_name ?? '-'}</div>
+            <div><b>Radno mesto:</b> ${emp.position ?? '-'}</div>
+
+            <div><b>Organizaciona jedinica:</b> ${emp.organizational_unit ?? '-'}</div>
+            <div><b>Ugovor:</b> ${emp.contract_type ?? '-'}</div>
+
+            <div><b>Datum rođenja:</b> ${formatDate(emp.birth_date)}</div>
+            <div><b>JMBG:</b> ${emp.jmbg ?? '-'}</div>
+
+            <div><b>Zasnivanje radnog odnosa:</b> ${formatDate(emp.employment_date) ?? '-'}</div>
+            <div><b>Istek ugovora:</b> ${formatDate(emp.contract_end_date) ?? '-'}</div>
+
+            <div><b>Email:</b> ${emp.email ?? '-'}</div>
+            <div><b>Službeni telefon:</b> ${emp.phone_work ?? '-'}</div>
+
+            <div><b>Privatni telefon:</b> ${emp.phone_private ?? '-'}</div>
+
+            <div class="col-span-2">
+                <b>Slika:</b><br>
+                ${emp.photo 
+                    ? `<img src="/storage/${emp.photo}" class="w-24 h-24 object-cover rounded mt-2">`
+                    : 'Nema slike'}
+            </div>
         `;
 
         document.getElementById('employeeDetailModal').classList.remove('hidden');
@@ -445,6 +474,166 @@ function toggleNode(e, row, id){
             icon.style.transform = 'rotate(0deg)'; // ▼
         }
     }
+}
+
+function enableEdit(){
+
+    fetch(`/employees/${window.currentEmployeeId}/json`)
+    .then(res => res.json())
+    .then(emp => {
+
+        document.getElementById('employeeDetailContent').innerHTML = `
+
+            <div><b>Matični broj:</b><br>
+                <input id="edit_employee_number" value="${emp.employee_number ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Ime:</b><br>
+                <input id="edit_first_name" value="${emp.first_name ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Prezime:</b><br>
+                <input id="edit_last_name" value="${emp.last_name ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Radno mesto:</b><br>
+                <input id="edit_position" value="${emp.position ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Email:</b><br>
+                <input id="edit_email" value="${emp.email ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Telefon službeni:</b><br>
+                <input id="edit_phone_work" value="${emp.phone_work ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Telefon privatni:</b><br>
+                <input id="edit_phone_private" value="${emp.phone_private ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Datum rođenja:</b><br>
+                <input type="date" id="edit_birth_date" value="${emp.birth_date ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>JMBG:</b><br>
+                <input id="edit_jmbg" value="${emp.jmbg ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Zasnivanje radnog odnosa:</b><br>
+                <input type="date" id="edit_employment_date" value="${emp.employment_date ?? ''}" class="border p-1 w-full">
+            </div>
+
+            <div><b>Istek ugovora:</b><br>
+                <input type="date" id="edit_contract_end_date" value="${emp.contract_end_date ?? ''}" class="border p-1 w-full">
+            </div>
+
+        `;
+
+        // dugmad
+        let footer = document.querySelector('#employeeDetailModal .text-right');
+        footer.innerHTML = `
+            <button id="saveEmployeeBtn" class="px-4 py-2 bg-blue-600 text-white rounded">
+                Sačuvaj
+            </button>
+            <button onclick="closeEmployeeDetail()" class="px-4 py-2 border rounded">
+                Otkaži
+            </button>
+        `;
+    });
+}
+
+function saveEmployeeDetail(){
+    console.log("SAVE CLICKED");
+
+    let id = window.currentEmployeeId;
+
+    
+    let data = {
+        employee_number: document.getElementById('edit_employee_number').value,
+        first_name: document.getElementById('edit_first_name').value,
+        last_name: document.getElementById('edit_last_name').value,
+        position: document.getElementById('edit_position').value,
+        email: document.getElementById('edit_email').value,
+        phone_work: document.getElementById('edit_phone_work').value,
+        phone_private: document.getElementById('edit_phone_private').value,
+        birth_date: document.getElementById('edit_birth_date').value || null,
+        jmbg: document.getElementById('edit_jmbg').value,
+        employment_date: document.getElementById('edit_employment_date').value || null,
+        contract_end_date: document.getElementById('edit_contract_end_date').value || null,
+
+        // 🔥 OVO JE FIX
+        organizational_unit_id: window.currentEmployeeData.organizational_unit_id,
+        contract_type: window.currentEmployeeData.contract_type
+    };
+
+    fetch(`/employees/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrf()
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => {
+        if(!res.ok){
+            throw new Error("Greška pri snimanju");
+        }
+        return res.json().catch(() => ({})); // fallback ako nema JSON
+    })
+    .then(() => {
+
+    showToast('Izmenjeno');
+
+    // 🔥 UPDATE U TABELI
+    let rows = document.querySelectorAll('#employeesTable tr');
+
+    rows.forEach(row => {
+        if(row.getAttribute('onclick')?.includes(`showEmployeeDetail(${id})`)){
+
+            row.children[0].innerText = data.employee_number ?? '';
+            row.children[1].innerText = data.first_name + ' ' + data.last_name;
+            row.children[2].innerText = data.position ?? '';
+
+        }
+    });
+
+    closeEmployeeDetail();
+
+// reset footer na default
+let footer = document.querySelector('#employeeDetailModal .text-right');
+
+footer.innerHTML = `
+    <button onclick="enableEdit()" class="px-4 py-2 bg-yellow-500 text-white rounded">
+        Izmeni
+    </button>
+
+    <button onclick="closeEmployeeDetail()" class="px-4 py-2 border rounded">
+        Zatvori
+    </button>
+`;
+});
+}
+
+document.addEventListener('click', function(e){
+
+    if(e.target && e.target.id === 'saveEmployeeBtn'){
+        saveEmployeeDetail();
+    }
+
+});
+
+function formatDate(date){
+
+    if(!date) return '-';
+
+    let d = new Date(date);
+
+    let day = String(d.getDate()).padStart(2, '0');
+    let month = String(d.getMonth() + 1).padStart(2, '0');
+    let year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
 }
 
 </script>

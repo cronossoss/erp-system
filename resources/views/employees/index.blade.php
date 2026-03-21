@@ -9,6 +9,13 @@
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Lista zaposlenih</h2>
 
+        <input 
+            type="text" 
+            id="searchInput"
+            placeholder="Pretraga zaposlenih..."
+            class="border px-3 py-2 rounded w-64"
+            onkeyup="searchEmployees()">
+
         <button onclick="openModal()"
             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             + Dodaj zaposlenog
@@ -213,9 +220,15 @@ function saveEmployee(){
         body: JSON.stringify(data)
     })
     .then(res => res.json())
-    .then(() => {
-        showToast('Dodat');
-        location.reload();
+
+    .then(emp => {
+
+        let tbody = document.querySelector("tbody");
+
+        tbody.insertAdjacentHTML('beforeend', renderRow(emp));
+
+        showToast('Radnik dodat');
+        closeModal();
     });
 }
 
@@ -235,11 +248,10 @@ function updateEmployee(){
     if(!validateEmployee(data)) return;
 
     fetch(`/employees/${id}`, {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json",
-            "X-CSRF-TOKEN":csrf(),
-            "X-HTTP-Method-Override":"PUT"
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrf()
         },
         body: JSON.stringify(data)
     })
@@ -267,6 +279,69 @@ function showToast(msg){
     t.classList.remove('hidden');
     setTimeout(()=>t.classList.add('hidden'),2000);
 }
+
+function renderRow(emp){
+    return `
+        <tr id="row-${emp.id}" class="border-b">
+            <td class="p-3">${emp.employee_number ?? ''}</td>
+            <td class="p-3">${emp.first_name} ${emp.last_name}</td>
+            <td class="p-3">${emp.position ?? ''}</td>
+            <td class="p-3">${emp.organizational_unit_name ?? '-'}</td>
+            <td class="p-3">${emp.contract_type ?? ''}</td>
+
+            <td class="p-3 text-right space-x-2">
+
+                <button class="bg-yellow-400 px-2 py-1 rounded"
+                    data-id="${emp.id}"
+                    data-first="${emp.first_name}"
+                    data-last="${emp.last_name}"
+                    data-position="${emp.position ?? ''}"
+                    data-unit="${emp.organizational_unit_id ?? ''}"
+                    data-employee_number="${emp.employee_number ?? ''}"
+                    data-contract_type="${emp.contract_type ?? ''}"
+                    onclick="openEditModal(this)">
+                    ✏️
+                </button>
+
+                <button class="bg-red-500 text-white px-2 py-1 rounded"
+                    data-id="${emp.id}"
+                    onclick="deleteEmployee(this)">
+                    🗑
+                </button>
+
+            </td>
+        </tr>
+    `;
+}
+
+function searchEmployees(){
+
+    let query = document.getElementById('searchInput').value;
+
+    fetch(`/employees/search?search=${query}`)
+    .then(res => res.json())
+    .then(data => {
+
+        let tbody = document.querySelector("tbody");
+        tbody.innerHTML = '';
+
+        data.forEach(emp => {
+            tbody.insertAdjacentHTML('beforeend', renderRow(emp));
+        });
+
+    });
+}
+
+document.addEventListener('click', function(e){
+
+    let btn = e.target.closest('#saveEmployeeBtn');
+
+    if(btn){
+        console.log("SAVE CLICKED");
+        saveEmployeeDetail();
+    }
+
+});
 
 </script>
 

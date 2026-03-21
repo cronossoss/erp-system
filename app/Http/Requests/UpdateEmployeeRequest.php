@@ -16,12 +16,23 @@ class UpdateEmployeeRequest extends FormRequest
         $id = $this->route('employee');
 
         return [
-            'employee_number' => ['required', 'digits:5', 'unique:employees,employee_number,' . $id],
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'position' => ['nullable', 'string', 'max:255'],
-            'organizational_unit_id' => ['nullable', 'exists:organizational_units,id'],
-            'contract_type' => ['required', 'string'],
+            'employee_number' => 'nullable|string',
+            'first_name' => 'nullable|string',
+            'last_name' => 'nullable|string',
+            'position' => 'nullable|string',
+
+            'email' => 'nullable|email',
+            'phone_work' => 'nullable|string',
+            'phone_private' => 'nullable|string',
+
+            'birth_date' => 'nullable|date',
+            'jmbg' => 'nullable|string',
+
+            'employment_date' => 'nullable|date',
+            'contract_end_date' => 'nullable|date',
+
+            'contract_type' => 'nullable|string',
+            'organizational_unit_id' => 'nullable|exists:organizational_units,id',
         ];
     }
 }

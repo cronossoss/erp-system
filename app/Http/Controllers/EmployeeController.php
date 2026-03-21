@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Services\EmployeeService;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeController extends Controller
 {
@@ -44,10 +45,12 @@ class EmployeeController extends Controller
             $employees->map(function ($e) {
                 return [
                     'id' => $e->id,
+                    'employee_number' => $e->employee_number,
                     'first_name' => $e->first_name ?? '',
                     'last_name' => $e->last_name ?? '',
                     'position' => $e->position ?? '',
                     'organizational_unit_name' => optional($e->organizationalUnit)->name ?? '',
+                    'contract_type' => $e->contract_type,
                     'organizational_unit_id' => $e->organizational_unit_id ?? ''
                 ];
             })->values()
@@ -71,22 +74,24 @@ class EmployeeController extends Controller
     }
 
 
-    public function update(UpdateEmployeeRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        $employee = Employee::findOrFail($id);
+        try {
 
-        $employee = $this->service->update($employee, $request->validated());
+            $employee = Employee::findOrFail($id);
 
-        return response()->json([
-            'id' => $employee->id,
-            'employee_number' => $employee->employee_number,
-            'first_name' => $employee->first_name,
-            'last_name' => $employee->last_name,
-            'position' => $employee->position,
-            'organizational_unit_name' => optional($employee->organizationalUnit)->name,
-            'organizational_unit_id' => $employee->organizational_unit_id,
-            'contract_type' => $employee->contract_type
-        ]);
+            $data = $request->all(); // 👈 NE validated
+
+            $employee->update($data);
+
+            return response()->json($employee);
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
     }
 
     public function destroy($id)
@@ -130,12 +135,25 @@ class EmployeeController extends Controller
         $e = \App\Models\Employee::with('organizationalUnit')->findOrFail($id);
 
         return response()->json([
+            'id' => $e->id,
             'employee_number' => $e->employee_number,
             'first_name' => $e->first_name,
             'last_name' => $e->last_name,
             'position' => $e->position,
             'contract_type' => $e->contract_type,
             'organizational_unit' => optional($e->organizationalUnit)->name,
+            'organizational_unit_id' => $e->organizational_unit_id,
+
+            'birth_date' => $e->birth_date,
+            'jmbg' => $e->jmbg,
+            'employment_date' => $e->employment_date,
+            'contract_end_date' => $e->contract_end_date,
+
+            'email' => $e->email,
+            'phone_work' => $e->phone_work,
+            'phone_private' => $e->phone_private,
+
+            'photo' => $e->photo
         ]);
     }
 }
