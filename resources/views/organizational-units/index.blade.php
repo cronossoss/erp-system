@@ -33,7 +33,7 @@
 
 </div>
 
-
+<div id="employeesOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
 
 @include('organizational-units.partials.modals')
 
@@ -55,7 +55,11 @@
                 </tr>
             </thead>
 
-            <tbody id="employeesTable"></tbody>
+            <tbody id="employeesTable">
+                <tr>
+                    <td colspan="4" class="p-2 text-center">Učitavanje...</td>
+                </tr>
+</tbody>
         </table>
 
         <div class="text-right mt-4">
@@ -187,11 +191,22 @@ function saveUnit(){
 
 function showEmployees(unitId){
 
+    let tbody = document.getElementById('employeesTable');
+
+    // LOADING
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="4" class="p-2 text-center">Učitavanje...</td>
+        </tr>
+    `;
+
+    document.getElementById('employeesModal').classList.remove('hidden');
+    document.getElementById('employeesOverlay').classList.remove('hidden');
+
     fetch(`/employees/by-unit/${unitId}`)
     .then(res => res.json())
     .then(data => {
 
-        let tbody = document.getElementById('employeesTable');
         tbody.innerHTML = '';
 
         if(data.length === 0){
@@ -200,7 +215,7 @@ function showEmployees(unitId){
 
         data.forEach(emp => {
             tbody.innerHTML += `
-                <tr class="border-b">
+                <tr class="border-b hover:bg-gray-50">
                     <td class="p-2">${emp.employee_number ?? ''}</td>
                     <td class="p-2">${emp.first_name} ${emp.last_name}</td>
                     <td class="p-2">${emp.position ?? ''}</td>
@@ -209,13 +224,25 @@ function showEmployees(unitId){
             `;
         });
 
-        document.getElementById('employeesModal').classList.remove('hidden');
+    })
+    .catch(() => {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-2 text-center text-red-500">Greška pri učitavanju</td></tr>';
     });
 }
 
 function closeEmployeesModal(){
     document.getElementById('employeesModal').classList.add('hidden');
+    document.getElementById('employeesOverlay').classList.add('hidden');
 }
+
+document.getElementById('employeesOverlay')
+    .addEventListener('click', closeEmployeesModal);
+
+document.addEventListener('keydown', function(e){
+    if(e.key === "Escape"){
+        closeEmployeesModal();
+    }
+});
 
 
 </script>
