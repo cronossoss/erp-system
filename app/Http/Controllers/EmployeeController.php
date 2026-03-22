@@ -76,22 +76,11 @@ class EmployeeController extends Controller
 
     public function update(Request $request, $id)
     {
-        try {
+        $emp = Employee::findOrFail($id);
 
-            $employee = Employee::findOrFail($id);
+        $emp->update($request->all());
 
-            $data = $request->all(); // 👈 NE validated
-
-            $employee->update($data);
-
-            return response()->json($employee);
-        } catch (\Throwable $e) {
-
-            return response()->json([
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ], 500);
-        }
+        return response()->json(['success' => true]);
     }
 
     public function destroy($id)
