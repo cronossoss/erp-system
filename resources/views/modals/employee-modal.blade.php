@@ -1,11 +1,14 @@
-<div id="employeeModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white w-[500px] p-6 rounded-lg relative">
+<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    
 
-        <button onclick="EmployeeModal.close()" class="absolute top-2 right-2">✕</button>
+    <div class="bg-white w-full max-w-6xl h-[80vh] rounded-2xl shadow-lg p-8 relative overflow-y-auto">
 
-        <h2 class="text-lg font-bold mb-4">Zaposleni</h2>
+        <button onclick="closeEmployeeModal()" class="absolute top-2 right-3 text-xl">&times;</button>
+
+        <h2 class="text-2xl font-bold mb-6">Detalji zaposlenog</h2>
 
         <div id="employeeModalContent"></div>
 
     </div>
+
 </div>

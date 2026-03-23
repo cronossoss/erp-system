@@ -194,6 +194,12 @@ class EmployeeController extends Controller
         ]));
     }
 
+    public function show($id)
+    {
+        $employee = Employee::with('organizationalUnit')->findOrFail($id);
+        return response()->json($employee);
+    }
+
     // DETAIL
     public function showJson($id)
     {

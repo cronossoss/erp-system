@@ -1,7 +1,6 @@
 import './bootstrap';
 
-import Alpine from 'alpinejs';
+import { openEmployeeModal, closeEmployeeModal } from './modules/employee/employee-modal';
 
-window.Alpine = Alpine;
-
-Alpine.start();
+window.openEmployeeModal = openEmployeeModal;
+window.closeEmployeeModal = closeEmployeeModal;

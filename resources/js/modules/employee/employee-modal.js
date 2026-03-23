@@ -1,44 +1,110 @@
-export function openModal() {
-    document.getElementById('modal').classList.remove('hidden');
+export function openEmployeeModal(id) {
+    fetch(`/employees/${id}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Server error");
+            }
+            return res.json();
+        })
+        .then(data => {
+
+            const content = `
+                <div class="flex gap-6">
+
+                    <!-- AVATAR -->
+                    <div class="w-40 text-center">
+                        <img 
+                            src="${data.photo ? '/storage/' + data.photo : '/images/default-avatar.png'}" 
+                            class="w-32 h-32 rounded-full object-cover mx-auto border"
+                        >
+                        <p class="mt-2 font-semibold">${data.first_name} ${data.last_name}</p>
+                        <p class="text-sm text-gray-500">${data.position ?? '-'}</p>
+                    </div>
+
+                    <!-- DETALJI -->
+                    <div class="flex-1 grid grid-cols-2 gap-4 text-sm">
+
+                        <div>
+                            <span class="text-gray-500">Matični broj</span><br>
+                            <strong>${data.employee_number}</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500">JMBG</span><br>
+                            <strong>${data.jmbg ?? '-'}</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500">Organizaciona jedinica</span><br>
+                            <strong>${
+                                data.organizational_unit 
+                                    ? data.organizational_unit.name 
+                                    : '-'
+                            }</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500">Tip ugovora</span><br>
+                            <strong>${data.contract_type ?? '-'}</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500">Datum zaposlenja</span><br>
+                            <strong>${data.employment_date ?? '-'}</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500">Email</span><br>
+                            <strong>${data.email ?? '-'}</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500">Telefon (posao)</span><br>
+                            <strong>${data.phone_work ?? '-'}</strong>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500">Telefon (privatni)</span><br>
+                            <strong>${data.phone_private ?? '-'}</strong>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('employeeModalContent').innerHTML = content;
+
+            const modal = document.getElementById('employeeModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Greška pri učitavanju radnika");
+        });
 }
 
-export function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
+export function closeEmployeeModal() {
+    const modal = document.getElementById('employeeModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 
-export function showEmployeeDetail(id){
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('employeeModal');
 
-    fetch(`/employees/${id}/json`)
-    .then(res => res.json())
-    .then(emp => {
+    if (!modal) return;
 
-        let html = `
-            <div class="text-lg font-bold mb-4">
-                ${emp.first_name} ${emp.last_name}
-            </div>
-
-            <div class="text-sm space-y-1">
-                <p><b>Pozicija:</b> ${emp.position ?? '-'}</p>
-                <p><b>Email:</b> ${emp.email ?? '-'}</p>
-                <p><b>Telefon:</b> ${emp.phone_work ?? '-'}</p>
-            </div>
-        `;
-
-        document.getElementById('employeeDetailContent').innerHTML = html;
-
-        document.getElementById('overlay').classList.remove('hidden');
-        document.getElementById('employeeDetailModal').classList.remove('hidden');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            window.closeEmployeeModal();
+        }
     });
-}
 
-export function closeDetailModal(){
-    document.getElementById('employeeDetailModal')?.classList.add('hidden');
-    document.getElementById('overlay')?.classList.add('hidden');
-}
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "Escape") {
+            window.closeEmployeeModal();
+        }
+    });
+});
 
-export function openEditModal(btn){
-    console.log("EDIT OK", btn);
-
-    document.getElementById('overlay')?.classList.remove('hidden');
-    document.getElementById('editModal')?.classList.remove('hidden');
-}
