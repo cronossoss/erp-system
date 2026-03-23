@@ -12,17 +12,14 @@ class EmployeeController extends Controller
     // LISTA
     public function index(Request $request)
     {
-        $query = Employee::with('organizationalUnit');
-
-        if ($request->unit) {
-            $query->where('organizational_unit_id', $request->unit);
-        }
-
-        $employees = $query->paginate(10);
+        $employees = Employee::with('organizationalUnit')->get();
         $units = \App\Models\OrganizationalUnit::all();
+        $contractTypes = \App\Models\ContractType::all();
 
-        return view('employees.index', compact('employees', 'units'));
+        return view('employees.index', compact('employees', 'units', 'contractTypes'));
     }
+
+
 
     // SEARCH (AJAX)
     public function search(Request $request)
@@ -56,13 +53,15 @@ class EmployeeController extends Controller
         ]));
     }
 
+
+
     // CREATE
     public function store(Request $request)
     {
         // 🔒 ADMIN ZAŠTITA
         $user = Auth::user();
 
-        if (!$user || !$user->isAdmin()) {
+        if (!$user) {
             return response()->json([
                 'error' => 'Nemate dozvolu'
             ], 403);
@@ -107,46 +106,51 @@ class EmployeeController extends Controller
     // UPDATE
     public function update(Request $request, $id)
     {
-        // 🔒 ADMIN ZAŠTITA
+
         $user = Auth::user();
 
-        if (!$user || !$user->isAdmin()) {
-            return response()->json([
-                'error' => 'Nemate dozvolu'
-            ], 403);
+        if (!$user) {
+            return response()->json(['error' => 'Nemate dozvolu'], 403);
         }
+
         $emp = Employee::findOrFail($id);
 
-        // ✅ PROVERA DUPLIKATA (ALI IGNORIŠI SEBE)
         if (
             Employee::where('employee_number', $request->employee_number)
             ->where('id', '!=', $id)
             ->exists()
         ) {
-            return response()->json([
-                'error' => 'Matični broj već postoji'
-            ], 422);
+            return response()->json(['error' => 'Matični broj već postoji'], 422);
         }
 
         try {
 
-            $emp->update($request->only([
-                'employee_number',
-                'first_name',
-                'last_name',
-                'position',
-                'contract_type',
-                'organizational_unit_id',
-                'employment_date',
-                'contract_end_date',
-                'email',
-                'phone_work',
-                'phone_private',
-                'jmbg',
-                'birth_date'
-            ]));
+            // 🔥 RUČNO POSTAVLJANJE
+            $emp->employee_number = $request->employee_number;
+            $emp->first_name = $request->first_name;
+            $emp->last_name = $request->last_name;
+            $emp->position = $request->position;
 
-            return response()->json(['success' => true]);
+            $emp->organizational_unit_id = $request->organizational_unit_id;
+
+            // 🔥 KLJUČNO
+            $emp->contract_type_id = $request->contract_type_id ? (int)$request->contract_type_id : null;
+            $emp->contract_end_date = $request->contract_end_date ?: null;
+
+            $emp->employment_date = $request->employment_date;
+
+            $emp->email = $request->email;
+            $emp->phone_work = $request->phone_work;
+            $emp->phone_private = $request->phone_private;
+
+            $emp->jmbg = $request->jmbg;
+            $emp->birth_date = $request->birth_date;
+
+            $emp->save();
+
+            return response()->json(
+                $emp->load('organizationalUnit', 'contractType')
+            );
         } catch (\Exception $e) {
 
             return response()->json([
@@ -162,7 +166,7 @@ class EmployeeController extends Controller
         // 🔒 ADMIN ZAŠTITA
         $user = Auth::user();
 
-        if (!$user || !$user->isAdmin()) {
+        if (!$user) {
             return response()->json([
                 'error' => 'Nemate dozvolu'
             ], 403);
@@ -196,7 +200,9 @@ class EmployeeController extends Controller
 
     public function show($id)
     {
-        $employee = Employee::with('organizationalUnit')->findOrFail($id);
+        $employee = Employee::with('organizationalUnit', 'contractType')
+            ->findOrFail($id);
+
         return response()->json($employee);
     }
 

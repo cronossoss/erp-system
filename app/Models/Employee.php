@@ -7,24 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     protected $fillable = [
-        'employee_number',
         'first_name',
         'last_name',
         'position',
-
-        'organizational_unit_id',
-        'contract_type',
-
-        'birth_date',
+        'employee_number',
         'jmbg',
-        'employment_date',
+        'organizational_unit_id',
+        'contract_type_id',
         'contract_end_date',
-
+        'employment_date',
         'email',
         'phone_work',
         'phone_private',
-
-        'photo'
     ];
 
     public function user()
@@ -39,5 +33,10 @@ class Employee extends Model
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function contractType()
+    {
+        return $this->belongsTo(\App\Models\ContractType::class);
     }
 }

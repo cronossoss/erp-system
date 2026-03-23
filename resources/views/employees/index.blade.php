@@ -80,7 +80,7 @@
      data-units='@json($units)'>
 </div>
 
-@include('employees.partials.modals')
+
 @include('modals.employee-modal')
 
 @vite(['resources/js/app.js'])

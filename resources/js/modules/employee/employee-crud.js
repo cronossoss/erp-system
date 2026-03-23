@@ -1,6 +1,7 @@
 import { el, csrf } from "../core/helpers";
 import { showToast } from "../core/toast";
 import { renderRow } from "./employee-render";
+import { openEmployeeModal } from './employee-modal';
 
 export function saveEmployee() {
 

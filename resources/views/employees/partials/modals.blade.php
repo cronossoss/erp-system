@@ -51,39 +51,49 @@ Sačuvaj
 
 <h3 class="text-lg font-bold mb-3">Izmena zaposlenog</h3>
 
-<input id="edit_employee_number" placeholder="Matični broj"
-class="w-full border px-3 py-2 mb-2">
+<div class="grid grid-cols-2 gap-4 text-sm">
 
-<input id="edit_first_name" placeholder="Ime"
-class="w-full border px-3 py-2 mb-2">
+    <div>
+        <span class="text-gray-500">Matični broj</span>
+        <input id="edit_employee_number" class="border p-2 w-full mt-1">
+    </div>
 
-<input id="edit_last_name" placeholder="Prezime"
-class="w-full border px-3 py-2 mb-2">
+    <div>
+        <span class="text-gray-500">JMBG</span>
+        <input id="edit_jmbg" class="border p-2 w-full mt-1">
+    </div>
 
-<input id="edit_position" placeholder="Pozicija"
-class="w-full border px-3 py-2 mb-2">
+    <div>
+        <span class="text-gray-500">Organizaciona jedinica</span>
+        <select id="edit_unit_id" class="border p-2 w-full mt-1">
+            @foreach($units as $unit)
+                <option value="{{ $unit->id }}">
+                    {{ $unit->code ?? '' }} - {{ $unit->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-<select id="edit_contract_type" class="w-full border px-3 py-2 mb-2">
-    <option value="">-- Ugovor --</option>
-    <option value="neodređeno">Neodređeno</option>
-    <option value="određeno">Određeno</option>
-    <option value="drugo">Drugo</option>
-</select>
+    <div>
+        <span class="text-gray-500">Tip ugovora</span>
+        <select id="edit_contract_type_id" class="border p-2 w-full mt-1">
+            <option value="">-- Tip ugovora --</option>
+            @foreach($contractTypes as $type)
+                <option value="{{ $type->id }}">{{ $type->name }}</option>
+            @endforeach
+        </select>
+    </div>
 
-<input type="date" id="edit_contract_end_date"
-class="w-full border px-3 py-2 mb-2">
+    <div>
+        <span class="text-gray-500">Datum zaposlenja</span>
+        <input id="edit_employment_date" type="date" class="border p-2 w-full mt-1">
+    </div>
 
-<div class="flex gap-2 mb-4">
-    <select id="edit_unit_select" class="w-full border px-3 py-2">
-        @foreach($units as $unit)
-            <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-        @endforeach
-    </select>
+    <div id="contractEndWrapper" class="hidden">
+        <span class="text-gray-500">Datum isteka ugovora</span>
+        <input id="edit_contract_end_date" type="date" class="border p-2 w-full mt-1">
+    </div>
 
-    <button onclick="openUnitModal()"
-        class="bg-green-500 text-white px-3 rounded">
-        +
-    </button>
 </div>
 
 <div class="flex justify-end gap-2">
@@ -139,7 +149,7 @@ Sačuvaj
         <div id="employeeDetailContent" class="space-y-2 text-sm"></div>
 
         <div class="flex justify-end mt-4">
-            <button onclick="closeDetailModal()">Zatvori</button>
+            <button onclick="closeEmployeeModal()">Zatvori</button>
         </div>
 
     </div>
