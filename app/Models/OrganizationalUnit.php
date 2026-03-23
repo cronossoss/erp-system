@@ -8,6 +8,7 @@ class OrganizationalUnit extends Model
 {
     protected $fillable = [
         'name',
+        'code',
         'parent_id'
     ];
 

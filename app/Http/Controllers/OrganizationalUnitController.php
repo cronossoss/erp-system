@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\OrganizationalUnit;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
 
 class OrganizationalUnitController extends Controller
 {
@@ -20,10 +22,18 @@ class OrganizationalUnitController extends Controller
 
     public function store(Request $request)
     {
-        $unit = OrganizationalUnit::create([
-            'name' => $request->name,
-            'parent_id' => $request->parent_id
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|digits:3|unique:organizational_units,code',
+            'parent_id' => 'nullable|exists:organizational_units,id'
+        ], [
+            'name.required' => 'Naziv je obavezan',
+            'code.required' => 'Šifra je obavezna',
+            'code.digits' => 'Šifra mora imati tačno 3 cifre',
+            'code.unique' => 'Šifra već postoji'
         ]);
+
+        $unit = OrganizationalUnit::create($validated);
 
         return response()->json($unit);
     }
@@ -32,12 +42,20 @@ class OrganizationalUnitController extends Controller
     {
         $unit = OrganizationalUnit::findOrFail($id);
 
-        $unit->update([
-            'name' => $request->name,
-            'parent_id' => $request->parent_id
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|digits:3|unique:organizational_units,code',
+            'parent_id' => 'nullable|exists:organizational_units,id'
+        ], [
+            'name.required' => 'Naziv je obavezan',
+            'code.required' => 'Šifra je obavezna',
+            'code.digits' => 'Šifra mora imati tačno 3 cifre',
+            'code.unique' => 'Šifra već postoji'
         ]);
 
-        return response()->json($unit);
+        $unit->update($validated);
+
+        return response()->json(['success' => true]);
     }
 
     public function destroy($id)

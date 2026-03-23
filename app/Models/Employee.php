@@ -34,9 +34,8 @@ class Employee extends Model
 
     public function organizationalUnit()
     {
-        return $this->belongsTo(OrganizationalUnit::class);
+        return $this->belongsTo(\App\Models\OrganizationalUnit::class, 'organizational_unit_id');
     }
-
     public function attendances()
     {
         return $this->hasMany(Attendance::class);

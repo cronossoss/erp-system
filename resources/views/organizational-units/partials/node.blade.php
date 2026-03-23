@@ -4,7 +4,11 @@
     data-parent="{{ $unit->parent_id }}"
     data-level="{{ $level }}"
     class="cursor-pointer hover:bg-gray-100">
-    <td class="p-2">{{ $unit->id }}</td>
+    <td class="p-2">
+        <span class="bg-gray-100 px-2 py-1 rounded font-mono">
+            {{ $unit->code }}
+        </span>
+    </td>
 
     <td class="p-2">
         {!! str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level) !!}
@@ -23,9 +27,13 @@
     <td class="p-2 text-right space-x-2">
 
         <button 
-            onclick="event.stopPropagation(); editUnit({{ $unit->id }}, '{{ addslashes($unit->name) }}', '{{ $unit->parent_id }}')"
-            class="bg-yellow-500 text-white px-2 py-1 rounded text-xs">
-            Edit
+                data-id="{{ $unit->id }}"
+                data-name="{{ $unit->name }}"
+                data-code="{{ $unit->code }}"
+                data-parent="{{ $unit->parent_id }}"
+                onclick="event.stopPropagation(); openEditUnitModal(this)"
+                class="bg-yellow-400 px-2 py-1 rounded">
+                ✏️ Izmena
         </button>
 
         <button 

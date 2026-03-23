@@ -41,9 +41,18 @@
 
             </nav>
 
-            <div class="p-4 border-t border-gray-700 text-sm">
-                Ulogovan korisnik
+            @auth
+            <div class="text-sm text-gray-600">
+                Ulogovan: 
+                <span 
+                    class="font-semibold cursor-pointer hover:underline hover:text-blue-600"
+                    onclick="openMyProfile()"
+                >
+                    {{ auth()->user()->employee?->first_name }}
+                    {{ auth()->user()->employee?->last_name ?? auth()->user()->email }}
+                </span>
             </div>
+            @endauth
 
         </aside>
 
@@ -84,5 +93,21 @@
     <div id="toast" class="fixed top-5 right-5 hidden px-4 py-2 rounded text-white shadow-lg z-50"></div>
 
 </body>
+<script>
+
+    function openMyProfile(){
+
+    let employeeId = {{ auth()->user()->employee_id ?? 'null' }};
+
+    if(!employeeId){
+        alert('Korisnik nije povezan sa zaposlenim');
+        return;
+    }
+
+    // koristi već postojeću funkciju
+    showEmployeeDetail(employeeId);
+}
+
+</script>
 
 </html>

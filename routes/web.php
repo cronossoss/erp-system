@@ -26,15 +26,13 @@ Route::middleware('auth')->group(function () {
 
     // ✅ EMPLOYEES
     Route::get('/employees/search', [EmployeeController::class, 'search']);
-    Route::resource('employees', EmployeeController::class)->except(['show']);
+    Route::resource('employees', EmployeeController::class);
     Route::get('/employees/by-unit/{id}', [EmployeeController::class, 'byUnit']);
     Route::get('/employees/{id}/json', [EmployeeController::class, 'showJson']);
 
     // ✅ ORGANIZATIONAL UNITS (OVO JE DOVOLJNO!)
     Route::resource('organizational-units', OrganizationalUnitController::class);
 
-    Route::post('/organizational-units', [OrganizationalUnitController::class, 'store'])
-        ->name('organizational-units.store');
 
     // ✅ PROFILE
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

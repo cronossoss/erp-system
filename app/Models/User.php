@@ -49,14 +49,18 @@ class User extends Authenticatable
         ];
     }
     public function employee()
-        {
-            return $this->belongsTo(Employee::class);
-        }
+    {
+        return $this->belongsTo(Employee::class);
+    }
 
-        public function getEmployeeNameAttribute()
-{
-    return $this->employee
-        ? $this->employee->first_name . ' ' . $this->employee->last_name
-        : 'N/A';
-}
+    public function getEmployeeNameAttribute()
+    {
+        return $this->employee
+            ? $this->employee->first_name . ' ' . $this->employee->last_name
+            : 'N/A';
+    }
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 }

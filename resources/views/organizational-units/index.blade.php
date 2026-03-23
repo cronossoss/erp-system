@@ -18,8 +18,8 @@
     <table class="w-full text-sm">
         <thead class="bg-gray-200 text-xs uppercase">
             <tr>
-                <th class="p-2 text-left">ID</th>
-                <th class="p-2 text-left">Naziv</th>
+                <th class="p-2 text-left">Šifra org.jed.</th>
+                <th class="p-2 text-left">Naziv org.jed.</th>
                 <th class="p-2 text-right">Akcije</th>
             </tr>
         </thead>
@@ -67,28 +67,31 @@
     </div>
 </div>
 
-<!-- EMPLOYEE DETAIL MODAL -->
-<div id="employeeDetailModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
-    <div class="bg-white rounded shadow-lg w-[700px] p-6">
 
-        <h2 class="text-lg font-bold mb-4">Detalji zaposlenog</h2>
-
-        <div id="employeeDetailContent" class="grid grid-cols-2 gap-4 text-sm"></div>
-
-        <div id="employeeDetailFooter" class="text-right mt-4 space-x-2">
-            <button onclick="enableEdit()" class="px-4 py-2 bg-yellow-500 text-white rounded">
-                Izmeni
-            </button>
-
-            <button onclick="closeEmployeeDetail()" class="px-4 py-2 border rounded">
-                Zatvori
-            </button>
-        </div>
-
-    </div>
-</div>
 
 <script>
+let units = @json($units);
+
+function buildUnitOptions(units, selectedId, level = 0) {
+
+    let result = '';
+
+    units.forEach(u => {
+
+        let prefix = '—'.repeat(level);
+        let selected = u.id == selectedId ? 'selected' : '';
+
+        result += `<option value="${u.id}" ${selected}>${prefix} [${u.code}] ${u.name}</option>`;
+
+        // 🔥 AKO IMA CHILDREN
+        if(u.children && u.children.length){
+            result += buildUnitOptions(u.children, selectedId, level + 1);
+        }
+    });
+
+    return result;
+}
+
 function el(id){ return document.getElementById(id); }
 function csrf(){ return document.querySelector('meta[name="csrf-token"]').getAttribute('content'); }
 
@@ -101,18 +104,28 @@ function showEmployees(unitId){
     fetch(`/employees/by-unit/${unitId}`)
     .then(res => res.json())
     .then(data => {
+
         tbody.innerHTML = '';
+
+        // AKO NEMA ZAPOSLENIH
+        if(data.length === 0){
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="p-4 text-center text-gray-400 italic">
+                        Nema zaposlenih u ovoj jedinici
+                    </td>
+                </tr>
+            `;
+            return;
+        }
 
         data.forEach(emp => {
             tbody.innerHTML += `
-                <tr data-id="${emp.id}"
-                    class="border-b hover:bg-gray-50 cursor-pointer employee-row">
-
-                    <td class="p-2">${emp.employee_number ?? ''}</td>
-                    <td class="p-2">${emp.first_name} ${emp.last_name}</td>
-                    <td class="p-2">${emp.position ?? ''}</td>
-                    <td class="p-2">${emp.organizational_unit_name ?? ''}</td>
-
+                <tr onclick="showEmployeeDetail(${emp.id})" class="cursor-pointer hover:bg-gray-100">
+                    <td>${emp.employee_number ?? '-'}</td>
+                    <td>${emp.first_name ?? ''} ${emp.last_name ?? ''}</td>
+                    <td>${emp.position ?? '-'}</td>
+                    <td>${emp.organizational_unit_name ?? '-'}</td>
                 </tr>
             `;
         });
@@ -120,8 +133,10 @@ function showEmployees(unitId){
 }
 
 function showEmployeeDetail(id){
+    closeEmployeesModal();
 
     window.currentEmployeeId = id;
+    document.getElementById('employeeDetailContent').innerHTML = '';
 
     fetch(`/employees/${id}/json`)
     .then(res => res.json())
@@ -137,7 +152,7 @@ function showEmployeeDetail(id){
             <div><b>Prezime:</b> ${emp.last_name ?? '-'}</div>
             <div><b>Radno mesto:</b> ${emp.position ?? '-'}</div>
 
-            <div><b>Organizaciona jedinica:</b> ${emp.organizational_unit ?? '-'}</div>
+            <div><b>Organizaciona jedinica:</b> ${emp.organizational_unit_name ?? '-'}</div>
             <div><b>Ugovor:</b> ${emp.contract_type ?? '-'}</div>
 
             <div><b>Datum rođenja:</b> ${formatDate(emp.birth_date)}</div>
@@ -172,9 +187,37 @@ function showEmployeeDetail(id){
     });
 }
 
+function highlight(text, search){
+
+    if(!search) return text;
+
+    let lower = text.toLowerCase();
+    let s = search.toLowerCase();
+
+    if(lower.startsWith(s)){
+        return `<span class="bg-yellow-200">${text.substring(0, search.length)}</span>${text.substring(search.length)}`;
+    }
+
+    return text;
+}
+
 function enableEdit(){
 
     let emp = window.currentEmployeeData;
+
+    // UNIT OPTIONS
+    let unitOptions = '<option value="">-- Izaberi --</option>';
+    unitOptions += buildUnitOptions(units, emp.organizational_unit_id);
+
+    
+
+    // CONTRACT OPTIONS
+    let contractOptions = `
+        <option value="">-- Izaberi --</option>
+        <option value="neodređeno" ${emp.contract_type == 'neodređeno' ? 'selected' : ''}>Neodređeno</option>
+        <option value="određeno" ${emp.contract_type == 'određeno' ? 'selected' : ''}>Određeno</option>
+        <option value="drugo" ${emp.contract_type == 'drugo' ? 'selected' : ''}>Drugo</option>
+    `;
 
     document.getElementById('employeeDetailContent').innerHTML = `
 
@@ -190,8 +233,20 @@ function enableEdit(){
             <input id="edit_last_name" value="${emp.last_name ?? ''}" class="border p-1 w-full">
         </div>
 
-        <div><b>Radno mesto:</b><br>
+        <div><b>Pozicija:</b><br>
             <input id="edit_position" value="${emp.position ?? ''}" class="border p-1 w-full">
+        </div>
+
+        <div><b>Organizaciona jedinica:</b><br>
+            <select id="edit_unit_id" class="border p-1 w-full">
+                ${unitOptions}
+            </select>
+        </div>
+
+        <div><b>Tip ugovora:</b><br>
+            <select id="edit_contract_type" class="border p-1 w-full">
+                ${contractOptions}
+            </select>
         </div>
 
         <div><b>Email:</b><br>
@@ -252,15 +307,16 @@ function saveEmployeeDetail(){
         employment_date: el('edit_employment_date').value || null,
         contract_end_date: el('edit_contract_end_date').value || null,
 
-        organizational_unit_id: window.currentEmployeeData.organizational_unit_id,
-        contract_type: window.currentEmployeeData.contract_type
+        organizational_unit_id: document.getElementById('edit_unit_id').value || null,
+        contract_type: document.getElementById('edit_contract_type').value || null
     };
 
     fetch(`/employees/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrf()
+            "X-CSRF-TOKEN": csrf(),
+            "Accept": "application/json"
         },
         body: JSON.stringify(data)
     })
@@ -278,17 +334,6 @@ function closeEmployeesModal(){
     el('employeesOverlay').classList.add('hidden');
 }
 
-document.addEventListener('click', function(e){
-
-    let row = e.target.closest('.employee-row');
-
-    if(row){
-        let id = row.dataset.id;
-        showEmployeeDetail(id);
-    }
-
-});
-
 function formatDate(date){
 
     if(!date) return '-';
@@ -300,6 +345,152 @@ function formatDate(date){
     let year = d.getFullYear();
 
     return `${day}/${month}/${year}`;
+}
+
+function toggleNode(e, row, id){
+
+    // ignorisi klik na naziv (to već radi modal)
+    if(e.target.closest('.unit-name')) return;
+
+    // ignorisi klik na dugmad
+    if(e.target.closest('button')) return;
+
+    let level = parseInt(row.dataset.level);
+    let next = row.nextElementSibling;
+
+    if(!next) return;
+
+    let icon = row.querySelector('.toggle-icon');
+
+    // proveri da li ima child redova
+    if(parseInt(next.dataset.level) <= level) return;
+
+    let hide = !next.classList.contains('hidden');
+
+    while(next && parseInt(next.dataset.level) > level){
+
+        if(hide){
+            next.classList.add('hidden');
+        } else {
+            next.classList.remove('hidden');
+        }
+
+        next = next.nextElementSibling;
+    }
+
+    // rotacija strelice
+    if(icon){
+        icon.style.transform = hide ? 'rotate(-90deg)' : 'rotate(0deg)';
+    }
+}
+
+function saveUnit(){
+
+    console.log("EDIT ID:", window.currentUnitId);
+
+    let name = el('unit_name').value;
+    let code = el('unit_code').value;
+    let parent = el('parent_id').value;
+
+    // VALIDACIJA
+    if(!name){
+        alert('Naziv je obavezan');
+        return;
+    }
+
+    if(!/^\d{3}$/.test(code)){
+        alert('Šifra mora imati 3 cifre');
+        return;
+    }
+
+    // EDIT
+    if(window.currentUnitId){
+
+        fetch(`/organizational-units/${window.currentUnitId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrf(),
+                "X-HTTP-Method-Override": "PUT"
+            },
+            body: JSON.stringify({
+                name: name,
+                code: code,
+                parent_id: parent
+            })
+        })
+        .then(async res => {
+
+            if(!res.ok){
+                let error = await res.json();
+
+                let msg = Object.values(error.errors).join('\n');
+                alert(msg);
+                return;
+            }
+
+            location.reload();
+        });
+
+    } else {
+
+        // CREATE
+            fetch(`/organizational-units`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrf(),
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    code: code,
+                    parent_id: parent
+                })
+            })
+            .then(async res => {
+
+                if(!res.ok){
+                    let error = await res.json();
+
+                    let msg = Object.values(error.errors).join('\n');
+                    alert(msg);
+                    return;
+                }
+
+                location.reload();
+            });
+    }
+}
+
+function openUnitModal(){
+    window.currentUnitId = null;
+
+    el('unit_name').value = '';
+    el('unit_code').value = '';
+    el('parent_id').value = '';
+
+    el('unitOverlay').classList.remove('hidden'); // 👈 DODAJ
+    el('unitModal').classList.remove('hidden');
+}
+
+function openEditUnitModal(btn){
+
+    // uzmi ID
+    window.currentUnitId = btn.dataset.id;
+
+    // popuni formu
+    document.getElementById('unit_name').value = btn.dataset.name;
+    document.getElementById('unit_code').value = btn.dataset.code;
+    document.getElementById('parent_id').value = btn.dataset.parent || '';
+
+    // otvori modal
+    document.getElementById('unitModal').classList.remove('hidden');
+}
+
+function closeUnitModal(){
+    el('unitModal').classList.add('hidden');
+    el('unitOverlay').classList.add('hidden'); // 👈 DODAJ
 }
 
 </script>

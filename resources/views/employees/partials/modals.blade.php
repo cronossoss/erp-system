@@ -15,8 +15,8 @@ class="w-full border px-3 py-2 mb-2">
 
 <select id="contract_type" class="w-full border px-3 py-2 mb-2">
 <option value="">-- Ugovor --</option>
-<option value="neodredjeno">Neodređeno</option>
-<option value="odredjeno">Određeno</option>
+<option value="neodređeno">Neodređeno</option>
+<option value="određeno">Određeno</option>
 <option value="drugo">Drugo</option>
 </select>
 
@@ -49,21 +49,34 @@ Sačuvaj
 
 <input type="hidden" id="edit_id">
 
-<input id="edit_employee_number" class="w-full border px-3 py-2 mb-2">
-<input id="edit_first_name" class="w-full border px-3 py-2 mb-2">
-<input id="edit_last_name" class="w-full border px-3 py-2 mb-2">
-<input id="edit_position" class="w-full border px-3 py-2 mb-2">
+<h3 class="text-lg font-bold mb-3">Izmena zaposlenog</h3>
+
+<input id="edit_employee_number" placeholder="Matični broj"
+class="w-full border px-3 py-2 mb-2">
+
+<input id="edit_first_name" placeholder="Ime"
+class="w-full border px-3 py-2 mb-2">
+
+<input id="edit_last_name" placeholder="Prezime"
+class="w-full border px-3 py-2 mb-2">
+
+<input id="edit_position" placeholder="Pozicija"
+class="w-full border px-3 py-2 mb-2">
 
 <select id="edit_contract_type" class="w-full border px-3 py-2 mb-2">
-<option value="neodredjeno">Neodređeno</option>
-<option value="odredjeno">Određeno</option>
-<option value="drugo">Drugo</option>
+    <option value="">-- Ugovor --</option>
+    <option value="neodređeno">Neodređeno</option>
+    <option value="određeno">Određeno</option>
+    <option value="drugo">Drugo</option>
 </select>
+
+<input type="date" id="edit_contract_end_date"
+class="w-full border px-3 py-2 mb-2">
 
 <div class="flex gap-2 mb-4">
     <select id="edit_unit_select" class="w-full border px-3 py-2">
         @foreach($units as $unit)
-        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+            <option value="{{ $unit->id }}">{{ $unit->name }}</option>
         @endforeach
     </select>
 
@@ -113,6 +126,20 @@ Sačuvaj
             <button onclick="saveUnit()" class="bg-blue-600 text-white px-4 py-2 rounded">
                 Sačuvaj
             </button>
+        </div>
+
+    </div>
+</div>
+
+<div id="employeeDetailModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded w-[1000px] max-h-[80vh] overflow-y-auto">
+
+        <h3 class="text-lg font-bold mb-4">Detalji zaposlenog</h3>
+
+        <div id="employeeDetailContent" class="space-y-2 text-sm"></div>
+
+        <div class="flex justify-end mt-4">
+            <button onclick="closeDetailModal()">Zatvori</button>
         </div>
 
     </div>

@@ -36,7 +36,9 @@
 
         <tbody>
             @foreach($employees as $employee)
-            <tr id="row-{{ $employee->id }}" class="border-b">
+            <tr id="row-{{ $employee->id }}" 
+                class="border-b cursor-pointer hover:bg-gray-50"
+                onclick="showEmployeeDetail({{ $employee->id }})">
                 <td class="p-3">{{ $employee->employee_number }}</td>
                 <td class="p-3">{{ $employee->first_name }} {{ $employee->last_name }}</td>
                 <td class="p-3">{{ $employee->position }}</td>
@@ -53,13 +55,13 @@
                         data-unit="{{ $employee->organizational_unit_id }}"
                         data-employee_number="{{ $employee->employee_number }}"
                         data-contract_type="{{ $employee->contract_type }}"
-                        onclick="openEditModal(this)">
+                        onclick="event.stopPropagation(); openEditModal(this)">
                         ✏️
                     </button>
 
                     <button class="bg-red-500 text-white px-2 py-1 rounded"
                         data-id="{{ $employee->id }}"
-                        onclick="deleteEmployee(this)">
+                        onclick="event.stopPropagation(); deleteEmployee(this)">
                         🗑
                     </button>
 
@@ -69,12 +71,14 @@
         </tbody>
     </table>
 
+    
+
 </div>
 
 @include('employees.partials.modals')
 
 <script>
-
+window.units = @json($units);
 function el(id){ return document.getElementById(id); }
 function csrf(){ return document.querySelector('meta[name="csrf-token"]').getAttribute('content'); }
 
@@ -219,17 +223,32 @@ function saveEmployee(){
         },
         body: JSON.stringify(data)
     })
-    .then(res => res.json())
+    .then(async res => {
 
-    .then(emp => {
+    let text = await res.text();
 
-        let tbody = document.querySelector("tbody");
+    let response;
 
-        tbody.insertAdjacentHTML('beforeend', renderRow(emp));
+    try {
+        response = JSON.parse(text);
+    } catch(e){
+        showToast("Server greška", true);
+        return;
+    }
 
-        showToast('Radnik dodat');
-        closeModal();
-    });
+    if(!res.ok){
+        showToast(response.error || "Greška", true);
+        return;
+    }
+
+    let emp = response;
+
+    let tbody = document.querySelector("tbody");
+    tbody.insertAdjacentHTML('beforeend', renderRow(emp));
+
+    showToast('Radnik dodat');
+    closeModal();
+});
 }
 
 function updateEmployee(){
@@ -242,21 +261,22 @@ function updateEmployee(){
         last_name: el('edit_last_name').value,
         position: el('edit_position').value,
         organizational_unit_id: el('edit_unit_select').value,
-        contract_type: el('edit_contract_type').value
+        contract_type: el('edit_contract_type').value,
+        contract_end_date: el('edit_contract_end_date').value // 👈 OVO FALI
     };
 
     if(!validateEmployee(data)) return;
 
     fetch(`/employees/${id}`, {
-        method: "PUT",
+        method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrf()
+            "X-CSRF-TOKEN": csrf(),
+            "X-HTTP-Method-Override": "PUT"
         },
         body: JSON.stringify(data)
     })
-    .then(res=>res.json())
-    .then(()=> location.reload());
+    .then(() => location.reload());
 }
 
 function deleteEmployee(btn){
@@ -273,16 +293,32 @@ function deleteEmployee(btn){
 }
 
 // TOAST
-function showToast(msg){
-    let t = el('toast');
-    el('toast-msg').innerText = msg;
-    t.classList.remove('hidden');
-    setTimeout(()=>t.classList.add('hidden'),2000);
+function showToast(msg, isError = false){
+
+    let toast = document.getElementById('toast');
+    let span = document.getElementById('toast-msg');
+
+    span.innerText = msg;
+
+    toast.classList.remove('hidden');
+
+    if(isError){
+        toast.classList.remove('bg-green-600');
+        toast.classList.add('bg-red-600');
+    } else {
+        toast.classList.remove('bg-red-600');
+        toast.classList.add('bg-green-600');
+    }
+
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
 }
 
 function renderRow(emp){
     return `
-        <tr id="row-${emp.id}" class="border-b">
+        <tr id="row-${emp.id}" class="border-b cursor-pointer hover:bg-gray-50"
+            onclick="showEmployeeDetail(${emp.id})">
             <td class="p-3">${emp.employee_number ?? ''}</td>
             <td class="p-3">${emp.first_name} ${emp.last_name}</td>
             <td class="p-3">${emp.position ?? ''}</td>
@@ -299,7 +335,7 @@ function renderRow(emp){
                     data-unit="${emp.organizational_unit_id ?? ''}"
                     data-employee_number="${emp.employee_number ?? ''}"
                     data-contract_type="${emp.contract_type ?? ''}"
-                    onclick="openEditModal(this)">
+                    onclick="event.stopPropagation(); openEditModal(this)">
                     ✏️
                 </button>
 
@@ -312,6 +348,117 @@ function renderRow(emp){
             </td>
         </tr>
     `;
+}
+
+
+function showEmployeeDetail(id){
+
+    fetch(`/employees/${id}/json`)
+    .then(res => res.json())
+    .then(emp => {
+
+        let html = `
+
+            <!-- HEADER -->
+            <div class="flex items-center gap-4 mb-6">
+
+                <!-- AVATAR -->
+                <img src="https://ui-avatars.com/api/?name=${emp.first_name}+${emp.last_name}&background=0D8ABC&color=fff"
+                    class="rounded-full w-20 h-20 object-cover">
+
+                <!-- IME -->
+                <div>
+                    <div class="text-xl font-bold">
+                        ${emp.first_name} ${emp.last_name}
+                    </div>
+                    <div class="text-gray-500 text-sm">
+                        Matični broj: ${emp.employee_number}
+                    </div>
+                </div>
+
+                <!-- JMBG DESNO -->
+                <div class="ml-auto text-right">
+                    <div class="text-xs text-gray-500">JMBG</div>
+                    <input id="d_jmbg" value="${emp.jmbg ?? ''}" 
+                        class="border px-2 py-1 rounded text-sm">
+                </div>
+
+                <!-- EDIT BTN -->
+                <button onclick="enableEditMode()" 
+                    class="bg-yellow-500 text-white px-4 py-2 rounded ml-4">
+                    ✏️ Izmeni
+                </button>
+            </div>
+
+            <!-- HIDDEN (da ne puca save) -->
+            <input type="hidden" id="d_first_name" value="${emp.first_name ?? ''}">
+            <input type="hidden" id="d_last_name" value="${emp.last_name ?? ''}">
+            <input type="hidden" id="d_employee_number" value="${emp.employee_number ?? ''}">
+
+            <!-- GRID -->
+            <div class="grid grid-cols-3 gap-4 text-sm">
+
+                <!-- KOLONA 1 -->
+                <div class="bg-gray-50 p-3 rounded">
+                    <div class="text-xs text-gray-500">Email</div>
+                    <input id="d_email" value="${emp.email ?? ''}" disabled class="w-full border px-2 py-1 rounded mb-2">
+
+                    <div class="text-xs text-gray-500">Telefon (posao)</div>
+                    <input id="d_phone_work" value="${emp.phone_work ?? ''}" disabled class="w-full border px-2 py-1 rounded mb-2">
+
+                    <div class="text-xs text-gray-500">Telefon (privatni)</div>
+                    <input id="d_phone_private" value="${emp.phone_private ?? ''}" disabled class="w-full border px-2 py-1 rounded">
+                </div>
+
+                <!-- KOLONA 2 -->
+                <div class="bg-gray-50 p-3 rounded">
+                    <div class="text-xs text-gray-500">Pozicija</div>
+                    <input id="d_position" value="${emp.position ?? ''}" disabled class="w-full border px-2 py-1 rounded mb-2">
+
+                    <div class="text-xs text-gray-500">Jedinica</div>
+                    <select id="d_unit" disabled class="w-full border px-2 py-1 rounded mb-2">
+                        ${window.units.map(u => `
+                            <option value="${u.id}" ${u.id == emp.organizational_unit_id ? 'selected' : ''}>
+                                ${u.name}
+                            </option>
+                        `).join('')}
+                    </select>
+
+                    <div class="text-xs text-gray-500">Tip ugovora</div>
+                    <input id="d_contract_type" value="${emp.contract_type ?? ''}" disabled class="w-full border px-2 py-1 rounded">
+                </div>
+
+                <!-- KOLONA 3 (DATUMI) -->
+                <div class="bg-gray-50 p-3 rounded">
+
+                    <div class="text-xs text-gray-500">Datum rođenja</div>
+                    <input type="date" id="d_birth_date" value="${emp.birth_date ?? ''}" disabled class="w-full border px-2 py-1 rounded mb-2">
+
+                    <div class="text-xs text-gray-500">Datum zaposlenja</div>
+                    <input type="date" id="d_employment_date" value="${emp.employment_date ?? ''}" disabled class="w-full border px-2 py-1 rounded mb-2">
+
+                    <div class="text-xs text-gray-500">Istek ugovora</div>
+                    <input type="date" id="d_contract_end_date" value="${emp.contract_end_date ?? ''}" disabled class="w-full border px-2 py-1 rounded">
+
+                </div>
+
+            </div>
+
+            <!-- SAVE -->
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="saveFromDetail(${emp.id})"
+                    id="detailSaveBtn"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hidden">
+                    Sačuvaj
+                </button>
+            </div>
+            `;
+
+        document.getElementById('employeeDetailContent').innerHTML = html;
+
+        document.getElementById('overlay').classList.remove('hidden');
+        document.getElementById('employeeDetailModal').classList.remove('hidden');
+    });
 }
 
 function searchEmployees(){
@@ -332,16 +479,126 @@ function searchEmployees(){
     });
 }
 
-document.addEventListener('click', function(e){
+function closeDetailModal(){
+    document.getElementById('employeeDetailModal').classList.add('hidden');
+    document.getElementById('overlay').classList.add('hidden');
+}
 
-    let btn = e.target.closest('#saveEmployeeBtn');
 
-    if(btn){
-        console.log("SAVE CLICKED");
-        saveEmployeeDetail();
-    }
+function formatDate(date){
+    if(!date) return '';
+    let d = new Date(date);
+    return d.toLocaleDateString('sr-RS');
+}
 
-});
+function openEditFromDetail(id){
+
+    fetch(`/employees/${id}/json`)
+    .then(res => res.json())
+    .then(emp => {
+
+        closeDetailModal();
+
+        el('overlay').classList.remove('hidden');
+        el('editModal').classList.remove('hidden');
+
+        el('edit_id').value = emp.id;
+        el('edit_first_name').value = emp.first_name;
+        el('edit_last_name').value = emp.last_name;
+        el('edit_position').value = emp.position;
+        el('edit_employee_number').value = emp.employee_number;
+        el('edit_contract_type').value = emp.contract_type;
+        el('edit_unit_select').value = emp.organizational_unit_id;
+        el('edit_contract_end_date').value = emp.contract_end_date;
+    });
+}
+
+function enableEditMode(){
+    document.querySelectorAll('#employeeDetailModal input, #employeeDetailModal select')
+        .forEach(el => el.disabled = false);
+
+    document.getElementById('detailSaveBtn').classList.remove('hidden');
+}
+
+function saveFromDetail(id){
+
+    let data = {
+        employee_number: el('d_employee_number')?.value || '',
+        first_name: el('d_first_name').value,
+        last_name: el('d_last_name').value,
+        position: el('d_position').value,
+        organizational_unit_id: el('d_unit').value,
+        contract_type: el('d_contract_type').value,
+        employment_date: el('d_employment_date').value,
+        contract_end_date: el('d_contract_end_date').value,
+        email: el('d_email').value,
+        phone_work: el('d_phone_work').value || null,
+        phone_private: el('d_phone_private').value || null,
+        jmbg: el('d_jmbg').value || null,
+        birth_date: el('d_birth_date').value
+    };
+
+    fetch(`/employees/${id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrf(),
+            "X-HTTP-Method-Override": "PUT"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        showToast("Sačuvano");
+        location.reload();
+    });
+}
+
+function inputSection(title, rows){
+    return `
+        <div class="bg-gray-50 p-2 rounded shadow-sm">
+            <h4 class="font-semibold mb-1 text-xs">${title}</h4>
+
+            ${rows.map(r => {
+
+                if(!r[1]){
+                    return `
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-500">${r[0]}</span>
+                            <span class="font-medium">${r[2] ?? '-'}</span>
+                        </div>
+                    `;
+                }
+
+                if(r[3] === "unit_select"){
+                    return `
+                        <div class="mb-1">
+                            <label class="text-gray-500 text-xs">${r[0]}</label>
+                            <select id="${r[1]}" disabled class="w-full border px-2 py-[3px] text-xs rounded">
+                                ${window.units.map(u => `
+                                    <option value="${u.id}" ${u.id == r[2] ? 'selected' : ''}>
+                                        ${u.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="mb-1">
+                        <label class="text-gray-500 text-xs">${r[0]}</label>
+                        <input type="${r[3] ?? 'text'}"
+                            id="${r[1]}"
+                            value="${r[2] ?? ''}"
+                            disabled
+                            class="w-full border px-2 py-1 rounded">
+                    </div>
+                `;
+            }).join('')}
+
+        </div>
+    `;
+}
+
 
 </script>
 
