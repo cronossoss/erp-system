@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Organizacione jedinice')
 
 @section('content')
@@ -70,7 +69,8 @@
 
 
 <script>
-let units = @json($units);
+
+let units = JSON.parse('@json($units)');
 
 function buildUnitOptions(units, selectedId, level = 0) {
 
@@ -493,4 +493,9 @@ function closeUnitModal(){
     el('unitOverlay').classList.add('hidden'); // 👈 DODAJ
 }
 
+</script>(child.dataset.id);
+        });
+    }
 </script>
+
+@endsection

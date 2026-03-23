@@ -91,23 +91,23 @@
     </div>
 
     <div id="toast" class="fixed top-5 right-5 hidden px-4 py-2 rounded text-white shadow-lg z-50"></div>
+    <div id="auth-data"
+     data-employee-id="{{ auth()->user()->employee_id ?? '' }}">
+</div>
 
 </body>
 <script>
+function openMyProfile(){
 
-    function openMyProfile(){
-
-    let employeeId = {{ auth()->user()->employee_id ?? 'null' }};
+    const el = document.getElementById('auth-data');
+    const employeeId = el?.dataset.employeeId;
 
     if(!employeeId){
         alert('Korisnik nije povezan sa zaposlenim');
         return;
     }
 
-    // koristi već postojeću funkciju
     showEmployeeDetail(employeeId);
 }
-
 </script>
-
 </html>

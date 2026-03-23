@@ -36,9 +36,9 @@
 
         <tbody>
             @foreach($employees as $employee)
-            <tr id="row-{{ $employee->id }}" 
-                class="border-b cursor-pointer hover:bg-gray-50"
-                onclick="showEmployeeDetail({{ $employee->id }})">
+            <tr 
+                data-id="{{ $employee->id }}"
+                class="employee-row border-b hover:bg-gray-50 cursor-pointer">
                 <td class="p-3">{{ $employee->employee_number }}</td>
                 <td class="p-3">{{ $employee->first_name }} {{ $employee->last_name }}</td>
                 <td class="p-3">{{ $employee->position }}</td>
@@ -74,11 +74,25 @@
     
 
 </div>
-
+<div id="units-data"
+     data-units='@json($units)'>
+</div>
 @include('employees.partials.modals')
 
 <script>
-window.units = @json($units);
+
+document.addEventListener('click', function(e){
+
+    let row = e.target.closest('.employee-row');
+
+    if(row){
+        let id = row.dataset.id;
+        showEmployeeDetail(id);
+    }
+});
+const unitsEl = document.getElementById('units-data');
+window.units = unitsEl ? JSON.parse(unitsEl.dataset.units) : [];
+
 function el(id){ return document.getElementById(id); }
 function csrf(){ return document.querySelector('meta[name="csrf-token"]').getAttribute('content'); }
 
