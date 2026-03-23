@@ -367,7 +367,7 @@ function toggleNode(e, row, id){
 
     let hide = !next.classList.contains('hidden');
 
-    while(next && parseInt(next.dataset.level) > level){
+    while(next && parseInt(next.dataset.level) > level){ 
 
         if(hide){
             next.classList.add('hidden');
@@ -493,9 +493,6 @@ function closeUnitModal(){
     el('unitOverlay').classList.add('hidden'); // 👈 DODAJ
 }
 
-</script>(child.dataset.id);
-        });
-    }
+</script>
 </script>
 
-@endsection
