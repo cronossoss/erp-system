@@ -1,10 +1,14 @@
 <?php
 
+// app/Http/Controllers/OrganizationalUnitController.php
+
 namespace App\Http\Controllers;
 
 use App\Models\OrganizationalUnit;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\ContractType;
+
 
 
 class OrganizationalUnitController extends Controller
@@ -17,7 +21,9 @@ class OrganizationalUnitController extends Controller
 
         $allUnits = OrganizationalUnit::all();
 
-        return view('organizational-units.index', compact('units', 'allUnits'));
+        $contractTypes = ContractType::all(); // 👈 OVO FALI
+
+        return view('organizational-units.index', compact('units', 'allUnits', 'contractTypes'));
     }
 
     public function store(Request $request)
@@ -44,7 +50,11 @@ class OrganizationalUnitController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|digits:3|unique:organizational_units,code',
+            'code' => [
+                'required',
+                'digits:3',
+                Rule::unique('organizational_units', 'code')->ignore($unit->id)
+            ],
             'parent_id' => 'nullable|exists:organizational_units,id'
         ], [
             'name.required' => 'Naziv je obavezan',
@@ -60,7 +70,22 @@ class OrganizationalUnitController extends Controller
 
     public function destroy($id)
     {
-        $unit = OrganizationalUnit::findOrFail($id);
+        $unit = OrganizationalUnit::with('employees')->findOrFail($id);
+
+        // 🚫 AKO IMA ZAPOSLENE → STOP
+        if ($unit->employees()->count() > 0) {
+            return response()->json([
+                'error' => 'Ne može se obrisati jedinica koja ima zaposlene'
+            ], 400);
+        }
+
+        // 🚫 AKO IMA CHILDREN → STOP (bonus zaštita)
+        if ($unit->children()->count() > 0) {
+            return response()->json([
+                'error' => 'Ne može se obrisati jedinica koja ima podjedinice'
+            ], 400);
+        }
+
         $unit->delete();
 
         return response()->json(['success' => true]);

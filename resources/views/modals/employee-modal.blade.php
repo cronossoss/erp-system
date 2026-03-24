@@ -1,6 +1,6 @@
 <!-- resources/views/modals/employee-modal.blade.php -->
 
-<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden items-center justify-center z-[60]">
 
     <div class="bg-white w-full max-w-4xl h-[80vh] rounded-2xl shadow-lg p-8 relative overflow-y-auto">
 

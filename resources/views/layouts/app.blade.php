@@ -5,6 +5,7 @@
     <title>ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite(['resources/js/app.js'])
 </head>
 
 <body class="bg-gray-100">

@@ -1,5 +1,7 @@
 <?php
 
+// app/Http/Models/OrganizationalUnit.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

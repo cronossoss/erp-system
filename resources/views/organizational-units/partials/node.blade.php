@@ -1,3 +1,5 @@
+<!-- resources/views/organizational-units/partials/node.blade.php -->
+
 <tr 
     onclick="toggleNode(event, this, {{ $unit->id }})"
     data-id="{{ $unit->id }}"

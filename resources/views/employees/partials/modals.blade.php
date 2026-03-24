@@ -1,3 +1,5 @@
+<!-- resources\views\employees\partials\modals.blade.php -->
+
 <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
 
 <!-- ADD -->
@@ -147,9 +149,10 @@ Sačuvaj
         <h3 class="text-lg font-bold mb-4">Detalji zaposlenog</h3>
 
         <div id="employeeDetailContent" class="space-y-2 text-sm"></div>
+        <div id="employeeDetailFooter" class="flex justify-end mt-4 gap-2"></div>
 
         <div class="flex justify-end mt-4">
-            <button onclick="closeEmployeeModal()">Zatvori</button>
+            <button onclick="closeEmployeeDetail()">Zatvori</button>
         </div>
 
     </div>
