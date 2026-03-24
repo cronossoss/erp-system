@@ -1,5 +1,6 @@
 <?php
 
+// app/Http/Controllers/EmployeeController.php -->
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
@@ -82,8 +83,20 @@ class EmployeeController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'position' => $request->position,
+
                 'organizational_unit_id' => $request->organizational_unit_id,
-                'contract_type' => $request->contract_type
+                'contract_type_id' => $request->contract_type_id ? (int)$request->contract_type_id : null,
+
+                'employment_date' => $request->employment_date,
+                'contract_end_date' => $request->contract_end_date ?: null,
+                'birth_date' => $request->birth_date,
+
+                'email' => $request->email,
+                'phone_work' => $request->phone_work,
+                'phone_private' => $request->phone_private,
+
+                'jmbg' => $request->jmbg,
+                'gender' => $request->gender,
             ]);
 
             return response()->json([

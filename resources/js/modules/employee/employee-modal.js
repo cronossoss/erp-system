@@ -1,3 +1,6 @@
+// resources/js/modules/employee/employee-modal.js
+
+
 let currentEmployee = null;
 
 // =====================
@@ -47,8 +50,36 @@ function initDatepickers() {
 // =====================
 // OPEN MODAL
 // =====================
-export function openEmployeeModal(id) {
-    
+export function openEmployeeModal(id = null) {
+
+    const modal = document.getElementById('employeeModal');
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    // 👉 CREATE MODE (dodaj zaposlenog)
+    if (!id || id === "undefined") {
+
+        currentEmployee = null;
+
+        // očisti formu
+        document.querySelectorAll('.flatpickr-input').forEach(input => {
+            if (input._flatpickr) {
+                input._flatpickr.clear();
+            }
+        });
+        document.querySelectorAll('#editMode select').forEach(s => s.value = '');
+
+        setMode(true);
+
+        setTimeout(() => {
+            initDatepickers();
+        }, 50);
+
+        return;
+    }
+
+    // 👉 VIEW MODE
     fetch(`/employees/${id}`)
         .then(res => res.json())
         .then(data => {
@@ -59,9 +90,6 @@ export function openEmployeeModal(id) {
 
             setMode(false);
 
-            const modal = document.getElementById('employeeModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
             setTimeout(() => {
                 initDatepickers();
             }, 50);
@@ -71,7 +99,6 @@ export function openEmployeeModal(id) {
             alert('Greška pri učitavanju');
         });
 }
-window.openEmployeeModal = openEmployeeModal;
 
 
 
@@ -180,6 +207,19 @@ function renderView(data) {
                             <strong>${formatDate(data.birth_date)}</strong>
                         </div>
 
+                        <div>
+                            <span class="text-gray-500">Pol</span><br>
+                            <strong class="${
+                                data.gender === 'M' ? 'text-blue-600' : 'text-pink-600'
+                            }">
+                                ${
+                                    data.gender === 'M' ? 'Muški' :
+                                    data.gender === 'Z' ? 'Ženski' :
+                                    '-'
+                                }
+                            </strong>
+                        </div>
+
                     </div>
                 </div>
              
@@ -201,6 +241,7 @@ function fillEdit(data) {
 
     document.getElementById('edit_employee_number').value = data.employee_number || '';
     document.getElementById('edit_jmbg').value = data.jmbg || '';
+    document.getElementById('edit_gender').value = data.gender || '';
 
     document.getElementById('edit_unit_id').value = data.organizational_unit_id || '';
 
@@ -235,9 +276,12 @@ function setMode(edit) {
 // SAVE
 // =====================
 function saveEmployee() {
+
     const formData = new FormData();
 
-    formData.append('_method', 'PUT');
+    if (currentEmployee) {
+        formData.append('_method', 'PUT');
+    }
 
     formData.append('first_name', document.getElementById('edit_first_name').value);
     formData.append('last_name', document.getElementById('edit_last_name').value);
@@ -245,12 +289,11 @@ function saveEmployee() {
 
     formData.append('employee_number', document.getElementById('edit_employee_number').value);
     formData.append('jmbg', document.getElementById('edit_jmbg').value);
+    formData.append('gender', document.getElementById('edit_gender').value);
 
     formData.append('organizational_unit_id', document.getElementById('edit_unit_id').value);
 
     const contractVal = document.getElementById('edit_contract_type_id').value;
-    console.log('CONTRACT VALUE:', contractVal);
-
     formData.append('contract_type_id', contractVal !== '' ? contractVal : '');
 
     formData.append('employment_date', document.getElementById('edit_employment_date').value);
@@ -261,7 +304,11 @@ function saveEmployee() {
     formData.append('phone_work', document.getElementById('edit_phone_work').value);
     formData.append('phone_private', document.getElementById('edit_phone_private').value);
 
-    fetch(`/employees/${currentEmployee.id}`, {
+    const url = currentEmployee
+        ? `/employees/${currentEmployee.id}`
+        : `/employees`;
+
+    fetch(url, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -278,15 +325,22 @@ function saveEmployee() {
         return response.json();
     })
     .then(data => {
-        currentEmployee = data;
 
+        // CREATE → zatvori ili osveži
+        if (!currentEmployee) {
+            location.reload();
+            return;
+        }
+
+        // UPDATE
+        currentEmployee = data;
         renderView(data);
         fillEdit(data);
         setMode(false);
     })
     .catch(err => {
         console.error(err);
-        alert('Greška pri snimanju (vidi console)');
+        alert('Greška pri snimanju');
     });
 }
 
@@ -313,6 +367,47 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeEmployeeModal();
     });
+});
+
+document.addEventListener('input', function(e) {
+
+    if (e.target.id !== 'edit_jmbg') return;
+
+    const jmbg = e.target.value;
+
+    if (jmbg.length !== 13) return;
+
+    // DATUM
+    const day = jmbg.substring(0, 2);
+    const month = jmbg.substring(2, 4);
+    let year = jmbg.substring(4, 7);
+
+    if (parseInt(year) < 800) {
+        year = '2' + year;
+    } else {
+        year = '1' + year;
+    }
+
+    const formatted = `${year}-${month}-${day}`;
+
+    const birthInput = document.getElementById('edit_birth_date');
+
+    if (birthInput) {
+        if (birthInput._flatpickr) {
+            birthInput._flatpickr.setDate(formatted, true);
+        } else {
+            birthInput.value = formatted;
+        }
+    }
+
+    // POL
+    const genderNumber = parseInt(jmbg.substring(9, 12));
+    const genderInput = document.getElementById('edit_gender');
+
+    if (genderInput) {
+        genderInput.value = genderNumber < 500 ? 'M' : 'Z';
+    }
+
 });
 
 

@@ -1,5 +1,5 @@
 <?php
-
+// app/Models/Employee.php -->
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -16,9 +16,11 @@ class Employee extends Model
         'contract_type_id',
         'contract_end_date',
         'employment_date',
+        'birth_date',
         'email',
         'phone_work',
         'phone_private',
+        'gender'
     ];
 
     public function user()

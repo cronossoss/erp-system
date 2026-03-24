@@ -18,7 +18,7 @@
             class="border px-3 py-2 rounded w-64"
             onkeyup="searchEmployees()">
 
-        <button onclick="openModal()"
+        <button onclick="openEmployeeModal()"
             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             + Dodaj zaposlenog
         </button>
@@ -43,7 +43,7 @@
                 <td class="p-3">{{ $employee->first_name }} {{ $employee->last_name }}</td>
                 <td class="p-3">{{ $employee->position }}</td>
                 <td class="p-3">{{ $employee->organizationalUnit->name ?? '-' }}</td>
-                <td class="p-3">{{ $employee->contract_type }}</td>
+                <td class="p-3">{{ $employee->contractType->name ?? '-' }}</td>
 
                 <td class="p-3 text-right space-x-2">
 

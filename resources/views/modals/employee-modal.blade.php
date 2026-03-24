@@ -67,6 +67,15 @@
                     </div>
 
                     <div>
+                        <label class="text-gray-500">Pol</label>
+                        <select id="edit_gender" class="border p-2 w-full">
+                            <option value="">-- Izaberi --</option>
+                            <option value="M">Muški</option>
+                            <option value="Z">Ženski</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="text-gray-500">Organizaciona jedinica</label>
                         <select id="edit_unit_id" class="border p-2 w-full">
                             @foreach($units as $unit)

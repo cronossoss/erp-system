@@ -37,7 +37,7 @@ document.addEventListener('click', function(e) {
 
     // ROW CLICK
     const row = e.target.closest('.employee-row');
-    if (row) {
+    if (row && row.dataset.id) {
         openEmployeeModal(row.dataset.id);
     }
 
