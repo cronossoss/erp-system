@@ -15,7 +15,8 @@ class OrganizationalUnitController extends Controller
 {
     public function index()
     {
-        $units = OrganizationalUnit::with('children')
+        $units = OrganizationalUnit::with(['children', 'employees'])
+            ->withCount('employees')
             ->whereNull('parent_id')
             ->get();
 

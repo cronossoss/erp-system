@@ -22,6 +22,7 @@ class OrganizationalUnit extends Model
     public function children()
     {
         return $this->hasMany(OrganizationalUnit::class, 'parent_id')
+            ->withCount('employees') // 👈 DODAJ
             ->orderBy('name');
     }
 

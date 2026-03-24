@@ -22,7 +22,10 @@
         <span 
             class="unit-name"
             onclick="event.stopPropagation(); showEmployees({{ $unit->id }})">
-            {{ $unit->name }}
+             {{ $unit->name }}
+            <span class="ml-2 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
+                {{ $unit->employees_count ?? 0 }}
+            </span>
         </span>
     </td>
 
@@ -52,3 +55,4 @@
         @include('organizational-units.partials.node', ['unit' => $child, 'level' => $level + 1])
     @endforeach
 @endif
+
