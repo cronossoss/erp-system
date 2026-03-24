@@ -12,7 +12,18 @@ class EmployeeController extends Controller
     // LISTA
     public function index(Request $request)
     {
-        $employees = Employee::with('organizationalUnit')->get();
+        $query = Employee::query();
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('first_name', 'ILIKE', "%{$request->search}%")
+                ->orWhere('last_name', 'ILIKE', "%{$request->search}%")
+                ->orWhere('employee_number', 'ILIKE', "%{$request->search}%");
+            });
+        }
+
+        $employees = $query->get();
+
         $units = \App\Models\OrganizationalUnit::all();
         $contractTypes = \App\Models\ContractType::all();
 
@@ -23,35 +34,25 @@ class EmployeeController extends Controller
 
     // SEARCH (AJAX)
     public function search(Request $request)
-    {
-        $search = $request->get('search');
+{
+    $search = $request->get('search');
 
-        $query = Employee::with('organizationalUnit');
+    $query = Employee::with(['organizationalUnit', 'contractType']);
 
-        if (!empty($search)) {
+    if (!empty($search)) {
 
-            $search = strtolower($search);
+        $search = '%' . strtolower($search) . '%';
 
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(first_name) LIKE ?', [$search . '%'])
-                    ->orWhereRaw('LOWER(last_name) LIKE ?', [$search . '%'])
-                    ->orWhereRaw('LOWER(employee_number::text) LIKE ?', ['%' . $search . '%'])
-                    ->orWhereRaw('LOWER(position) LIKE ?', ['%' . $search . '%']);
-            });
-        }
-        $employees = $query->get();
-
-        return response()->json($employees->map(fn($e) => [
-            'id' => $e->id,
-            'employee_number' => $e->employee_number,
-            'first_name' => $e->first_name ?? '',
-            'last_name' => $e->last_name ?? '',
-            'position' => $e->position ?? '',
-            'organizational_unit_name' => optional($e->organizationalUnit)->name ?? '',
-            'contract_type' => $e->contract_type,
-            'organizational_unit_id' => $e->organizational_unit_id ?? ''
-        ]));
+        $query->where(function ($q) use ($search) {
+            $q->whereRaw('LOWER(first_name) LIKE ?', [$search])
+              ->orWhereRaw('LOWER(last_name) LIKE ?', [$search])
+              ->orWhereRaw('LOWER(employee_number::text) LIKE ?', [$search])
+              ->orWhereRaw('LOWER(position) LIKE ?', [$search]);
+        });
     }
+
+    return response()->json($query->get());
+}
 
 
 

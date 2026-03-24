@@ -1,6 +1,6 @@
+<!-- // resources/views/employees/index.blade.php -->
+
 @extends('layouts.app')
-
-
 
 @section('title', 'Radnici')
 
@@ -38,8 +38,7 @@
 
         <tbody>
             @foreach($employees as $employee)
-            <tr onclick="window.openEmployeeModal({{ $employee->id }})"
-                                    class="cursor-pointer hover:bg-gray-100">
+            <tr data-id="{{ $employee->id }}" class="employee-row cursor-pointer hover:bg-gray-100">
                 <td class="p-3">{{ $employee->employee_number }}</td>
                 <td class="p-3">{{ $employee->first_name }} {{ $employee->last_name }}</td>
                 <td class="p-3">{{ $employee->position }}</td>
@@ -48,21 +47,8 @@
 
                 <td class="p-3 text-right space-x-2">
 
-                    <button class="bg-yellow-400 px-2 py-1 rounded"
-                        data-id="{{ $employee->id }}"
-                        data-first="{{ $employee->first_name }}"
-                        data-last="{{ $employee->last_name }}"
-                        data-position="{{ $employee->position }}"
-                        data-unit="{{ $employee->organizational_unit_id }}"
-                        data-employee_number="{{ $employee->employee_number }}"
-                        data-contract_type="{{ $employee->contract_type }}"
-                        onclick="event.stopPropagation(); openEditModal(this)">
-                        ✏️
-                    </button>
-
-                    <button class="bg-red-500 text-white px-2 py-1 rounded"
-                        data-id="{{ $employee->id }}"
-                        onclick="event.stopPropagation(); deleteEmployee(this)">
+                    <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded"
+                        data-id="{{ $employee->id }}">
                         🗑
                     </button>
 
@@ -71,8 +57,33 @@
             @endforeach
         </tbody>
     </table>
+</div>
 
-    
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+
+    <div class="bg-white rounded-xl p-6 w-96 text-center">
+
+        <h3 class="text-lg font-semibold mb-4">
+            Da li ste sigurni?
+        </h3>
+
+        <p class="text-gray-500 mb-6">
+            Ova akcija je nepovratna.
+        </p>
+
+        <div class="flex justify-center gap-4">
+
+            <button onclick="confirmDelete()" class="bg-red-600 text-white px-4 py-2 rounded">
+                Da, obriši
+            </button>
+
+            <button onclick="closeDeleteModal()" class="bg-gray-300 px-4 py-2 rounded">
+                Otkaži
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 

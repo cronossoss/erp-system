@@ -1,19 +1,29 @@
+// resources/js/modules/employee/employee-search.js
+
 import { renderRow } from "./employee-render";
+
+let timer;
 
 export function searchEmployees() {
 
-    let query = document.getElementById('searchInput').value;
+    clearTimeout(timer);
 
-    fetch(`/employees/search?search=${query}`)
-    .then(res => res.json())
-    .then(data => {
+    timer = setTimeout(() => {
 
-        let tbody = document.querySelector("tbody");
-        tbody.innerHTML = '';
+        let query = document.getElementById('searchInput').value;
 
-        data.forEach(emp => {
-            tbody.insertAdjacentHTML('beforeend', renderRow(emp));
+        fetch(`/employees/search?search=${query}`)
+        .then(res => res.json())
+        .then(data => {
+
+            let tbody = document.querySelector("tbody");
+            tbody.innerHTML = '';
+
+            data.forEach(emp => {
+                tbody.insertAdjacentHTML('beforeend', renderRow(emp));
+            });
+
         });
 
-    });
+    }, 300); // čeka 300ms
 }

@@ -32,15 +32,15 @@ export function saveEmployee() {
     });
 }
 
-export function deleteEmployee(btn){
-    let id = btn.dataset.id;
+export function deleteEmployee(id) {
+    if (!confirm('Da li ste sigurni?')) return;
 
-    fetch(`/employees/${id}`,{
-        method:"POST",
-        headers:{
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-            "X-HTTP-Method-Override":"DELETE"
+    fetch(`/employees/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         }
     })
-    .then(()=> location.reload());
+    .then(() => location.reload())
+    .catch(() => alert('Greška pri brisanju'));
 }

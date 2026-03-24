@@ -1,6 +1,8 @@
+<!-- resources/views/modals/employee-modal.blade.php -->
+
 <div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
 
-    <div class="bg-white w-full max-w-6xl h-[80vh] rounded-2xl shadow-lg p-8 relative overflow-y-auto">
+    <div class="bg-white w-full max-w-4xl h-[80vh] rounded-2xl shadow-lg p-8 relative overflow-y-auto">
 
         <button onclick="closeEmployeeModal()" class="absolute top-2 right-3 text-xl">&times;</button>
 
@@ -17,92 +19,124 @@
         <div id="viewMode"></div>
 
         <!-- EDIT MODE -->
-        <div id="editMode" class="hidden">
 
-            <div class="flex gap-8">
+        <!-- EDIT MODE -->
+<div id="editMode" class="hidden">
 
-                <!-- LEVO -->
-                <div class="w-56 text-center border-r pr-6">
+    <div class="flex gap-6">
 
-                    <img 
-                        src="/images/default-avatar.png" 
-                        class="w-32 h-32 rounded-full object-cover mx-auto border"
-                    >
+        <!-- LEVO -->
+        <div class="w-64 border-r pr-6 text-center">
 
-                    <input id="edit_first_name" class="border p-2 w-full mt-4" placeholder="Ime">
-                    <input id="edit_last_name" class="border p-2 w-full mt-2" placeholder="Prezime">
+            <img 
+                src="/images/default-avatar.png" 
+                class="w-32 h-32 rounded-full object-cover mx-auto border"
+            >
 
-                    <input id="edit_position" class="border p-2 w-full mt-2" placeholder="Pozicija">
+            <!-- ime -->
+             <label class="text-gray-500">Ime radnika</label>
+            <input id="edit_first_name" class="border p-2 w-full mt-4 text-center" placeholder="Ime">
+            <label class="text-gray-500">Prezime radnika</label>
+            <input id="edit_last_name" class="border p-2 w-full mt-2 text-center" placeholder="Prezime">
 
-                </div>
+            <!-- pozicija -->
+            <label class="text-gray-500">Pozicija</label>
+            <input id="edit_position" class="border p-2 w-full mt-2 text-center" placeholder="Pozicija">
 
-                <!-- DESNO -->
-                <div class="flex-1 space-y-6">
+        </div>
 
-                    <!-- RADNI PODACI -->
+        <!-- DESNO -->
+        <div class="flex-1 space-y-6">
+
+            <!-- RADNI PODACI -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-600 mb-2 border-b pb-1">
+                    Radni podaci
+                </h4>
+
+                <div class="grid grid-cols-2 gap-4 text-sm">
+
                     <div>
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2 border-b pb-1">
-                            Radni podaci
-                        </h4>
-
-                        <div class="grid grid-cols-2 gap-4">
-
-                            <input id="edit_employee_number" class="border p-2" placeholder="Matični broj">
-                            <input id="edit_jmbg" class="border p-2" placeholder="JMBG">
-
-                            <select id="edit_unit_id" class="border p-2">
-                                @foreach($units as $unit)
-                                    <option value="{{ $unit->id }}">
-                                        {{ $unit->code ?? '' }} - {{ $unit->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-
-                            <select id="edit_contract_type_id" class="border p-2 w-full mt-1">
-                                <option value="" disabled selected>-- Tip ugovora --</option>
-
-                                @foreach($contractTypes as $type)
-                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <input id="edit_employment_date" type="date" class="border p-2">
-                            <div>
-                                <span class="text-gray-500 text-sm">Datum isteka ugovora</span>
-                                <input 
-                                    id="edit_contract_end_date"
-                                    type="date"
-                                    class="border p-2 w-full mt-1"
-                                >
-                            </div>
-
-                            <input id="edit_contract_end_date" type="date" class="border p-2 hidden">
-
-                        </div>
+                        <label class="text-gray-500">Matični broj</label>
+                        <input id="edit_employee_number" class="border p-2 w-full">
                     </div>
 
-                    <!-- KONTAKT -->
                     <div>
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2 border-b pb-1">
-                            Kontakt
-                        </h4>
+                        <label class="text-gray-500">JMBG</label>
+                        <input id="edit_jmbg" class="border p-2 w-full">
+                    </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-gray-500">Organizaciona jedinica</label>
+                        <select id="edit_unit_id" class="border p-2 w-full">
+                            @foreach($units as $unit)
+                                <option value="{{ $unit->id }}">
+                                    {{ $unit->code ?? '' }} - {{ $unit->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                            <input id="edit_email" class="border p-2" placeholder="Email">
-                            <input id="edit_phone_work" class="border p-2" placeholder="Telefon posao">
+                    <div>
+                        <label class="text-gray-500">Tip ugovora</label>
+                        <select id="edit_contract_type_id" class="border p-2 w-full">
+                            @foreach($contractTypes as $type)
+                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                            <input id="edit_phone_private" class="border p-2" placeholder="Telefon privatni">
+                    <div>
+                        <label class="text-gray-500">Datum zaposlenja</label>
+                        <input id="edit_employment_date" class="datepicker border p-2 w-full">
+                    </div>
 
-                        </div>
+                    <div>
+                        <label class="text-gray-500">Datum isteka ugovora</label>
+                        <input id="edit_contract_end_date" class="datepicker border p-2 w-full">
+                    </div>
+
+                    <div>
+                        <label class="text-gray-500">Datum rođenja</label>
+                        <input id="edit_birth_date" class="datepicker border p-2 w-full">
                     </div>
 
                 </div>
+            </div>
 
+            <!-- KONTAKT -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-600 mb-2 border-b pb-1">
+                    Kontakt
+                </h4>
+
+                <div class="grid grid-cols-2 gap-4">
+
+                    <div>
+                        <label class="text-gray-500">Email</label>
+                        <input id="edit_email" class="border p-2 w-full">
+                    </div>
+
+                    <div>
+                        <label class="text-gray-500">Telefon (posao)</label>
+                        <input id="edit_phone_work" class="border p-2 w-full">
+                    </div>
+
+                    <div>
+                        <label class="text-gray-500">Telefon (privatni)</label>
+                        <input id="edit_phone_private" class="border p-2 w-full">
+                    </div>
+
+                </div>
             </div>
 
         </div>
 
+    </div>
+
+</div>
+
+    
     </div>
 
 </div>
