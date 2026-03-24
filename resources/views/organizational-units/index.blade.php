@@ -167,6 +167,7 @@ function openEditUnitModal(btn){
     el('unit_name').value = btn.dataset.name;
     el('unit_code').value = btn.dataset.code;
     el('parent_id').value = btn.dataset.parent || '';
+    el('group_id').value = btn.dataset.group || '';
 
     el('unitOverlay').classList.remove('hidden');
     el('unitModal').classList.remove('hidden');
@@ -182,6 +183,7 @@ function saveUnit(){
     let name = el('unit_name').value;
     let code = el('unit_code').value;
     let parent = el('parent_id').value;
+    let group = el('group_id').value;
 
     if(!name){
         alert('Naziv je obavezan');
@@ -208,7 +210,8 @@ function saveUnit(){
         body: JSON.stringify({
             name: name,
             code: code,
-            parent_id: parent
+            parent_id: parent,
+            group_id: group
         })
     })
     .then(() => location.reload());

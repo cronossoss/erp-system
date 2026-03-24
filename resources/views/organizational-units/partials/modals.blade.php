@@ -26,6 +26,16 @@
             @endforeach
         </select>
 
+        <select id="group_id" class="w-full border px-3 py-2 mb-3">
+            <option value="">-- Izaberi celinu --</option>
+
+            @foreach($groups as $g)
+                <option value="{{ $g->id }}">
+                    [{{ $g->code }}] {{ $g->name }}
+                </option>
+            @endforeach
+        </select>
+
         <!-- DUGMAD -->
         <div class="flex justify-end gap-2">
             <button onclick="closeUnitModal()">Zatvori</button>

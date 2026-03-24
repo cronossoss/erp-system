@@ -58,15 +58,15 @@
     <h2 class="text-xl font-semibold mb-4">Dashboard</h2>
 
     <div class="bg-white p-4 rounded shadow mb-4">
-    <h4 class="text-lg font-semibold">
-        Dobrodošao,
-        @if(auth()->user()->employee)
-            {{ auth()->user()->employee->first_name }}
-        @else
-            <span class="text-red-500">Nema zaposlenog</span>
-        @endif
-        {{ auth()->user()->employee?->last_name }}
-    </h4>
+
+    @php $user = auth()->user(); @endphp
+
+        <h4 class="text-lg font-semibold">
+            Dobrodošao,
+            {{ $user->employee
+                ? $user->employee->first_name . ' ' . $user->employee->last_name
+                : $user->name }}
+        </h4>
 
     <p class="text-sm text-gray-600">
         Organizacija:
@@ -74,17 +74,94 @@
     </p>
 </div>
 
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <div class="bg-white p-2 rounded shadow">
-            <h5>Zaposleni</h5>
-            <h2 class="text-2xl font-bold">{{ $employeesCount }}</h2>
-        </div>
+        <div class="group [perspective:1000px]">
 
-        <div class="bg-white p-2 rounded shadow">
-            <h5>Org. jedinice</h5>
-            <h2 class="text-2xl font-bold">{{ $organizationalUnitsCount }}</h2>
-        </div>
+            <a href="{{ route('employees.index') }}"
+                    class="relative block h-32 transition duration-500 ease-in-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+
+                        {{-- FRONT --}}
+                        <div class="absolute inset-0 bg-white rounded shadow p-4 flex flex-col justify-center
+                                    [backface-visibility:hidden]">
+
+                            <div class="text-sm text-gray-500">Zaposleni</div>
+
+                            <div class="text-2xl font-bold">
+                                {{ $employeesCount }}
+                            </div>
+
+                        </div>
+
+                        {{-- BACK --}}
+                        <div class="absolute inset-0 bg-blue-600 text-white rounded shadow p-4 flex items-center justify-center text-center
+                                    [transform:rotateY(180deg)] [backface-visibility:hidden]">
+
+                            Ovde možete videti<br>spisak radnika
+
+                        </div>
+
+                    </a>
+
+            </div>
+
+            <div class="group [perspective:1000px]">
+
+                <a href="{{ route('organizational-units.index') }}"
+                class="relative block h-32 transition duration-500 ease-in-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+
+                    {{-- FRONT --}}
+                    <div class="absolute inset-0 bg-white rounded shadow p-4 flex flex-col justify-center
+                                [backface-visibility:hidden]">
+
+                        <div class="text-sm text-gray-500">Organizacione jedinice</div>
+
+                        <div class="text-2xl font-bold">
+                            {{ $organizationalUnitsCount }}
+                        </div>
+
+                    </div>
+
+                    {{-- BACK --}}
+                    <div class="absolute inset-0 bg-blue-600 text-white rounded shadow p-4 flex items-center justify-center text-center
+                                [transform:rotateY(180deg)] [backface-visibility:hidden]">
+
+                        Ovde možete videti<br>spisak organizacionih jedinica
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            <div class="group [perspective:1000px]">
+
+                <a href="{{ route('organizational-groups.index') }}"
+                class="relative block h-32 transition duration-500 ease-in-out [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+
+                    {{-- FRONT --}}
+                    <div class="absolute inset-0 bg-white rounded shadow p-4 flex flex-col justify-center
+                                [backface-visibility:hidden]">
+
+                        <div class="text-sm text-gray-500">Organizacione celine</div>
+
+                        <div class="text-2xl font-bold">
+                            {{ $groupsCount }}
+                        </div>
+
+                    </div>
+
+                    {{-- BACK --}}
+                    <div class="absolute inset-0 bg-blue-600 text-white rounded shadow p-4 flex items-center justify-center text-center
+                                [transform:rotateY(180deg)] [backface-visibility:hidden]">
+
+                        Ovde možete videti<br>spisak organizacionih celina
+
+                    </div>
+
+                </a>
+
+            </div>
 
     </div>
 

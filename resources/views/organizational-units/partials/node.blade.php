@@ -36,6 +36,7 @@
                 data-name="{{ $unit->name }}"
                 data-code="{{ $unit->code }}"
                 data-parent="{{ $unit->parent_id }}"
+                data-group="{{ $unit->group_id }}"
                 onclick="event.stopPropagation(); openEditUnitModal(this)"
                 class="bg-yellow-400 px-2 py-1 rounded">
                 ✏️ Izmena

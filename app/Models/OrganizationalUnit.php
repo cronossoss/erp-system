@@ -30,4 +30,9 @@ class OrganizationalUnit extends Model
     {
         return $this->hasMany(Employee::class, 'organizational_unit_id');
     }
+
+    public function group()
+    {
+        return $this->belongsTo(OrganizationalGroup::class, 'group_id');
+    }
 }

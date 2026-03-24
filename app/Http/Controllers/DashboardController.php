@@ -6,11 +6,13 @@ use App\Models\User;
 use App\Models\OrganizationalUnit;
 use App\Models\Employee;
 use Carbon\Carbon;
+use App\Models\OrganizationalGroup;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $groupsCount = OrganizationalGroup::count();
         $units = OrganizationalUnit::withCount('employees')
             ->orderBy('code')
             ->get();
@@ -33,6 +35,7 @@ class DashboardController extends Controller
             'usersCount' => User::count(),
             'employeesCount' => Employee::count(),
             'organizationalUnitsCount' => OrganizationalUnit::count(),
+            'groupsCount' => $groupsCount, // 👈 FIX
             'expiringContracts' => $expiring,
             'units' => $units
         ]);

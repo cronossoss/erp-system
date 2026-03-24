@@ -21,24 +21,47 @@
 
             <nav class="flex-1 p-4 space-y-2">
 
+                {{-- DASHBOARD --}}
                 <a href="/dashboard"
-                    class="block px-3 py-2 rounded {{ request()->is('dashboard') ? 'bg-gray-700 border-l-4 border-blue-400' : 'hover:bg-gray-700' }}">
-                    📊 Dashboard
+                class="block px-3 py-2 rounded hover:bg-gray-700 transition {{ request()->is('dashboard') ? 'bg-blue-700' : '' }}">
+                    🏠 Dashboard
                 </a>
 
-                <a href="/employees"
-                    class="block px-3 py-2 rounded {{ request()->is('employees*') ? 'bg-gray-700 border-l-4 border-blue-400' : 'hover:bg-gray-700' }}">
-                    👥 Radnici
+                {{-- ORGANIZACIJA --}}
+                <div class="mt-6 text-xs uppercase text-gray-500 font-semibold">
+                    Organizacija
+                </div>
+
+                <a href="{{ route('organizacija.overview') }}"
+                class="block px-3 py-2 rounded mt-2 hover:bg-gray-700 transition {{ request()->is('organizacija') ? 'bg-blue-700' : '' }}">
+                    📊 Pregled
+                </a>
+
+                <a href="{{ route('organizational-groups.index') }}"
+                class="block px-3 py-2 rounded  hover:bg-gray-700 transition {{ request()->is('organizational-groups*') ? 'bg-blue-700' : '' }}">
+                    🧩 Celine
                 </a>
 
                 <a href="{{ route('organizational-units.index') }}"
-                class="block px-3 py-2 rounded {{ request()->is('organizational-units*') ? 'bg-gray-700 border-l-4 border-blue-400' : 'hover:bg-gray-700' }}">
-                    🏢 Organizacija
+                class="block px-3 py-2 rounded  hover:bg-gray-700 transition {{ request()->is('organizational-units*') ? 'bg-blue-700' : '' }}">
+                    🗂 Jedinice
                 </a>
 
-                <a href="#" class="block px-3 py-2 rounded hover:bg-gray-700">
-                    📅 Prisustvo
+                {{-- ZAPOSLENI --}}
+                <a href="{{ route('employees.index') }}"
+                class="block px-3 py-2 rounded mt-2  hover:bg-gray-700 transition {{ request()->is('employees*') ? 'bg-blue-700' : '' }}">
+                    👥 Zaposleni
                 </a>
+
+                <div class="mt-6 text-xs uppercase text-gray-500 font-semibold">
+                    Podešavanja
+                </div>
+
+                <a href="{{ route('contract-types.index') }}"
+                class="block px-3 py-2 rounded mt-2  hover:bg-gray-700 transition {{ request()->is('contract-types*') ? 'bg-blue-700' : '' }}">
+                    ⚙️ Vrste ugovora
+                </a>
+
 
             </nav>
 

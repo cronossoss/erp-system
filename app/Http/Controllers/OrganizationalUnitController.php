@@ -8,6 +8,7 @@ use App\Models\OrganizationalUnit;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\ContractType;
+use App\Models\OrganizationalGroup;
 
 
 
@@ -15,16 +16,18 @@ class OrganizationalUnitController extends Controller
 {
     public function index()
     {
+
         $units = OrganizationalUnit::with(['children', 'employees'])
             ->withCount('employees')
             ->whereNull('parent_id')
             ->get();
 
         $allUnits = OrganizationalUnit::all();
+        $groups = OrganizationalGroup::all();
 
         $contractTypes = ContractType::all(); // 👈 OVO FALI
 
-        return view('organizational-units.index', compact('units', 'allUnits', 'contractTypes'));
+        return view('organizational-units.index', compact('units', 'allUnits', 'contractTypes', 'groups'));
     }
 
     public function store(Request $request)
@@ -90,5 +93,16 @@ class OrganizationalUnitController extends Controller
         $unit->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    public function overview()
+    {
+        $groups = \App\Models\OrganizationalGroup::with([
+            'units' => function ($q) {
+                $q->withCount('employees');
+            }
+        ])->get();
+
+        return view('organizational-units.overview', compact('groups'));
     }
 }

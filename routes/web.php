@@ -6,6 +6,8 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\OrganizationalUnitController;
+use App\Http\Controllers\OrganizationalGroupController;
+use App\Http\Controllers\ContractTypeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,6 +35,10 @@ Route::middleware('auth')->group(function () {
 
     // ✅ ORGANIZATIONAL UNITS (OVO JE DOVOLJNO!)
     Route::resource('organizational-units', OrganizationalUnitController::class);
+    Route::resource('organizational-groups', OrganizationalGroupController::class);
+    Route::get('/organizacija', [OrganizationalUnitController::class, 'overview'])
+        ->name('organizacija.overview');
+    Route::resource('contract-types', ContractTypeController::class);
 
 
     // ✅ PROFILE
