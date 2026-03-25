@@ -1,5 +1,7 @@
 <!-- resources/views/modals/employee-modal.blade.php -->
 
+
+
 <div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden items-center justify-center z-[60]">
 
     <div class="bg-white w-full max-w-4xl h-[80vh] rounded-2xl shadow-lg p-8 relative overflow-y-auto">
@@ -11,12 +13,62 @@
 
             <div class="flex gap-2">
                 <button id="editBtn" class="bg-yellow-400 px-3 py-1 rounded">Izmeni</button>
+                <button id="addWorkBtn" class="bg-green-500 text-white px-3 py-1 rounded">+ Unos rada</button>
                 <button id="saveBtn" class="bg-blue-600 text-white px-3 py-1 rounded hidden">Sačuvaj</button>
             </div>
         </div>
 
         <!-- VIEW MODE -->
         <div id="viewMode"></div>
+@php
+    $types = \App\Models\WorkEntryType::all();
+@endphp
+<div id="workEntryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-xl">
+
+        <h2 class="text-lg font-bold mb-4">Dodaj unos</h2>
+
+        <form id="workEntryForm">
+            <input type="hidden" name="employee_id" id="we_employee_id">
+
+            <div class="mb-2">
+                <label>Tip</label>
+                <select name="work_entry_type_id" class="w-full border p-2">
+                    @foreach($types as $type)
+                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label>Datum</label>
+                <input type="date" name="date" class="w-full border p-2">
+            </div>
+
+            <div class="flex gap-2">
+                <div class="w-1/2">
+                    <label>Od</label>
+                    <input type="time" name="time_from" class="w-full border p-2">
+                </div>
+                <div class="w-1/2">
+                    <label>Do</label>
+                    <input type="time" name="time_to" class="w-full border p-2">
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <label>Napomena</label>
+                <textarea name="note" class="w-full border p-2"></textarea>
+            </div>
+
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="button" onclick="closeWorkEntryModal()">Otkaži</button>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Sačuvaj</button>
+            </div>
+        </form>
+
+    </div>
+</div>
 
         <!-- EDIT MODE -->
 

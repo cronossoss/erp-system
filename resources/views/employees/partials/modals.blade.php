@@ -149,11 +149,52 @@ Sačuvaj
         <h3 class="text-lg font-bold mb-4">Detalji zaposlenog</h3>
 
         <div id="employeeDetailContent" class="space-y-2 text-sm"></div>
-        <div id="employeeDetailFooter" class="flex justify-end mt-4 gap-2"></div>
+        <div id="employeeDetailFooter" class="flex justify-end mt-4 gap-2">
+            
+        </div>
 
         <div class="flex justify-end mt-4">
             <button onclick="closeEmployeeDetail()">Zatvori</button>
         </div>
+
+    </div>
+</div>
+
+<!-- WORK ENTRY MODAL -->
+<div id="workEntryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+    <div class="bg-white p-6 rounded w-96">
+
+        <h3 class="text-lg font-bold mb-3">Unos rada</h3>
+
+        <form id="workEntryForm">
+            <input type="hidden" name="employee_id" id="we_employee_id">
+
+            <div class="mb-2">
+                <label>Tip</label>
+                <select name="work_entry_type_id" class="w-full border p-2">
+                    @foreach(\App\Models\WorkEntryType::all() as $type)
+                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label>Datum</label>
+                <input type="date" name="date" class="w-full border p-2">
+            </div>
+
+            <div class="flex gap-2">
+                <input type="time" name="time_from" class="w-1/2 border p-2">
+                <input type="time" name="time_to" class="w-1/2 border p-2">
+            </div>
+
+            <div class="mt-3 flex justify-end gap-2">
+                <button type="button" onclick="closeWorkEntryModal()">Zatvori</button>
+                <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded">
+                    Sačuvaj
+                </button>
+            </div>
+        </form>
 
     </div>
 </div>

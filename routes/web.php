@@ -9,6 +9,7 @@ use App\Http\Controllers\OrganizationalUnitController;
 use App\Http\Controllers\OrganizationalGroupController;
 use App\Http\Controllers\ContractTypeController;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -22,6 +23,7 @@ Route::middleware('auth')->group(function () {
     // ✅ ATTENDANCE
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])
         ->name('attendance.checkin');
+    Route::post('/work-entries', [WorkEntryController::class, 'store'])->name('work-entries.store');
 
     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])
         ->name('attendance.checkout');

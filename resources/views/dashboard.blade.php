@@ -235,12 +235,7 @@
 
         <div id="employeeDetailContent" class="grid grid-cols-2 gap-4 text-sm"></div>
 
-        <div id="employeeDetailFooter" class="text-right mt-4 space-x-2">
-            <button onclick="closeEmployeeDetail()" class="px-4 py-2 border rounded">
-                Zatvori
-            </button>
-        </div>
-
+        
     </div>
 </div>
 <script>
@@ -323,16 +318,24 @@ function showEmployeeDetail(id){
         document.getElementById('employeeDetailContent').innerHTML = `
             <div><b>Matični broj:</b> ${emp.employee_number ?? '-'}</div>
             <div><b>Ime:</b> ${emp.first_name ?? '-'}</div>
-
             <div><b>Prezime:</b> ${emp.last_name ?? '-'}</div>
             <div><b>Pozicija:</b> ${emp.position ?? '-'}</div>
-
             <div><b>Email:</b> ${emp.email ?? '-'}</div>
             <div><b>Telefon:</b> ${emp.phone_work ?? '-'}</div>
-
             <div><b>Jedinica:</b> ${emp.organizational_unit_name ?? '-'}</div>
             <div><b>Ugovor:</b> ${emp.contract_type ?? '-'}</div>
         `;
+        document.getElementById('addWorkBtn').dataset.id = emp.id;
+
+        // ✅ PRAVILNO vezivanje
+        const btn = document.getElementById('addWorkBtn');
+
+        if (btn) {
+            btn.onclick = function() {
+                openWorkEntryModal(emp.id);
+            };
+        }
+        
 
         document.getElementById('employeeDetailModal').classList.remove('hidden');
     });

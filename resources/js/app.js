@@ -66,5 +66,34 @@ window.confirmDelete = function() {
 
 }
 
+document.addEventListener('click', function(e) {
+
+    if (e.target && e.target.id === 'addWorkBtn') {
+
+        const employeeId = e.target.dataset.id;
+
+        console.log('klik radi', employeeId);
+
+        openWorkEntryModal(employeeId);
+    }
+
+});
+
+window.openWorkEntryModal = function(employeeId) {
+    console.log('klik radi', employeeId);
+
+    document.getElementById('we_employee_id').value = employeeId;
+
+    let modal = document.getElementById('workEntryModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+window.closeWorkEntryModal = function() {
+    let modal = document.getElementById('workEntryModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
 // FLATPICKR
 window.flatpickr = flatpickr;
