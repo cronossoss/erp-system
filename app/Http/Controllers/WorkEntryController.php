@@ -1,11 +1,12 @@
-<!-- // app/Http/Controllers/WorkEntryController.php -->
-
 <?php
+
+// app/Http/Controllers/WorkEntryController.php
+
+namespace App\Http\Controllers;
 
 use App\Models\WorkEntry;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Http\Controllers\Controller;
 
 class WorkEntryController extends Controller
 {
@@ -19,19 +20,14 @@ class WorkEntryController extends Controller
             'time_to' => 'nullable'
         ]);
 
-        $minutes = null;
-
-        if ($request->time_to) {
-            $minutes = Carbon::parse($request->time_from)
-                ->diffInMinutes(Carbon::parse($request->time_to));
-        }
-
         WorkEntry::create([
             'employee_id' => $request->employee_id,
             'work_entry_type_id' => $request->work_entry_type_id,
             'date' => $request->date,
-            'time_from' => $request->time_from,
-            'time_to' => $request->time_to,
+            'time_from' => $request->date . ' ' . $request->time_from,
+            'time_to' => $request->time_to
+                ? $request->date . ' ' . $request->time_to
+                : null,
             'note' => $request->note,
         ]);
 

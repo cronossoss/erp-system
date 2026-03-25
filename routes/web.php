@@ -8,6 +8,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\OrganizationalUnitController;
 use App\Http\Controllers\OrganizationalGroupController;
 use App\Http\Controllers\ContractTypeController;
+use App\Http\Controllers\WorkEntryController;
 
 
 Route::get('/', function () {
