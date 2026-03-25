@@ -25,6 +25,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])
         ->name('attendance.checkin');
     Route::post('/work-entries', [WorkEntryController::class, 'store'])->name('work-entries.store');
+    Route::get('/work-entry-types', fn() => \App\Models\WorkEntryType::all());
+    Route::get('/employees/{id}/work-entries', function ($id) {
+
+        $query = \App\Models\WorkEntry::with('type')
+            ->where('employee_id', $id);
+
+        if (request('from') && request('to')) {
+            $query->whereBetween('date', [request('from'), request('to')]);
+        }
+
+        return $query->orderByDesc('date')->get();
+    });
 
     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])
         ->name('attendance.checkout');

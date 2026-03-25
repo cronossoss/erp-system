@@ -81,23 +81,101 @@ export function openEmployeeModal(id = null) {
 
     // 👉 VIEW MODE
     fetch(`/employees/${id}`)
-        .then(res => res.json())
-        .then(data => {
-            currentEmployee = data;
+    .then(res => res.json())
+    .then(data => {
+        currentEmployee = data;
 
-            renderView(data);
-            fillEdit(data);
+        // 🔥 KLJUČNI FIX
+        window.currentEmployeeId = data.id;
+        console.log('SET GLOBAL ID:', data.id);
 
-            setMode(false);
+        renderView(data);
+        fetch(`/employees/${id}/work-entries`)
+            .then(res => res.json())
+            .then(entries => {
 
-            setTimeout(() => {
-                initDatepickers();
-            }, 50);
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Greška pri učitavanju');
-        });
+                const container = document.getElementById('workEntriesList');
+
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                if (!entries.length) {
+                    container.innerHTML = '<div class="text-gray-400">Nema unosa</div>';
+                    return;
+                }
+
+                entries.forEach(e => {
+
+                    const from = e.time_from ? e.time_from.substring(11,16) : '';
+                    const to = e.time_to ? e.time_to.substring(11,16) : '';
+
+                    container.innerHTML += `
+                        <div class="border p-2 rounded flex justify-between items-center">
+
+                            <div>
+                                <div class="font-semibold">
+                                    ${e.date}
+                                </div>
+
+                                <div class="text-gray-500 text-xs">
+                                    ${e.type?.name ?? '-'} | ${from} - ${to}
+                                </div>
+                            </div>
+
+                        </div>
+                    `;
+                });
+
+            });
+
+        fillEdit(data);
+
+        setMode(false);
+        
+                        // =====================================================
+                        // 🔥 WORK ENTRIES
+                        // =====================================================
+                        fetch(`/employees/${id}/work-entries`)
+                            .then(res => res.json())
+                            .then(entries => {
+
+                                const container = document.getElementById('workEntriesList');
+
+                                if (!container) return;
+
+                                container.innerHTML = '';
+
+                                if (!entries.length) {
+                                    container.innerHTML = '<div class="text-gray-400">Nema unosa</div>';
+                                    return;
+                                }
+
+                                entries.forEach(e => {
+
+                                    const from = e.time_from ? e.time_from.substring(11,16) : '';
+                                    const to = e.time_to ? e.time_to.substring(11,16) : '';
+
+                                    container.innerHTML += `
+                                        <div class="border p-2 rounded flex justify-between items-center">
+                                            <div>
+                                                <div class="font-semibold">${e.date}</div>
+                                                <div class="text-gray-500 text-xs">
+                                                    ${e.type?.name ?? '-'} | ${from} - ${to}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+
+                            });
+
+
+
+        setTimeout(() => {
+            initDatepickers();
+        }, 50);
+    })
 }
 
 

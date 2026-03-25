@@ -116,9 +116,13 @@
 
     </div>
 
-    <div id="toast" class="fixed top-5 right-5 hidden px-4 py-2 rounded text-white shadow-lg z-50"></div>
+    
     <div id="auth-data"
      data-employee-id="{{ auth()->user()->employee_id ?? '' }}">
+    </div>
+</div>
+<div id="toast"
+        class="hidden fixed top-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded text-white bg-green-600 shadow-lg z-[9999]" style="position: fixed; z-index: 999999;">
 </div>
 
 </body>

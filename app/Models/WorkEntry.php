@@ -15,5 +15,8 @@ class WorkEntry extends Model
         'note'
     ];
 
-   
+    public function type()
+    {
+        return $this->belongsTo(\App\Models\WorkEntryType::class, 'work_entry_type_id');
+    }
 }

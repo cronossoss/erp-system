@@ -1,6 +1,6 @@
 <!-- resources/views/modals/employee-modal.blade.php -->
 
-
+@vite(['resources/js/app.js'])
 
 <div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden items-center justify-center z-[60]">
 
@@ -20,6 +20,21 @@
 
         <!-- VIEW MODE -->
         <div id="viewMode"></div>
+
+        <button id="openWorkHistoryBtn"
+            class="text-blue-600 text-sm underline mt-2">
+            Pregled radnog vremena
+        </button>
+
+        {{-- <!-- 🔥 LISTA UNOSA RADA -->
+        <div class="mt-6">
+            <h3 class="text-sm font-semibold mb-2">Unosi rada</h3>
+
+            <div id="workEntriesList" class="text-sm space-y-2 max-h-40 overflow-y-auto">
+                <!-- puni JS -->
+            </div>
+        </div> --}}
+
 @php
     $types = \App\Models\WorkEntryType::all();
 @endphp
@@ -33,7 +48,7 @@
 
             <div class="mb-2">
                 <label>Tip</label>
-                <select name="work_entry_type_id" class="w-full border p-2">
+                <select id="we_work_entry_type_id" name="work_entry_type_id" class="w-full border p-2">
                     @foreach($types as $type)
                         <option value="{{ $type->id }}">{{ $type->name }}</option>
                     @endforeach
@@ -66,6 +81,48 @@
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Sačuvaj</button>
             </div>
         </form>
+
+    </div>
+</div>
+
+<!-- MODAL ZA VIEW LISTE RADNOG VREMENA -->
+
+<div id="workHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[70]">
+
+    <div class="bg-white w-full max-w-5xl h-[85vh] rounded-xl p-6 overflow-y-auto relative">
+
+              
+
+        <div class="sticky top-0 bg-white z-10 pb-3 border-b mb-4">
+
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">Radno vreme</h2>
+                
+                <!-- 🔥 ZATVARANJE -->
+                <button onclick="closeWorkHistoryModal()"
+                    class="text-2xl font-bold hover:text-red-500">
+                    &times;
+                </button>
+            </div>
+
+            <!-- FILTER -->
+            <div class="flex gap-2 mt-3">
+                <input type="date" id="wh_from" class="border p-2">
+                <input type="date" id="wh_to" class="border p-2">
+                <button id="wh_filter" class="bg-blue-500 text-white px-3 py-1 rounded">
+                    Filtriraj
+                </button>
+            </div>
+
+            <div id="workHistorySummary" class="text-sm font-semibold text-blue-600"></div>
+
+            <div id="workHistoryPaid" class="text-sm text-green-600"></div>
+            <div id="workHistoryUnpaid" class="text-sm text-red-600"></div>
+
+        </div>
+
+        <!-- LISTA -->
+        <div id="workHistoryList" class="space-y-2 text-sm"></div>
 
     </div>
 </div>
