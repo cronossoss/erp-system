@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmployeeVacation extends Model
+class Vacation extends Model
 {
     protected $fillable = [
         'employee_id',
-        'year',
-        'total_days',
-        'used_days',
+        'date_from',
+        'date_to',
+        'days',
+        'note'
     ];
 }

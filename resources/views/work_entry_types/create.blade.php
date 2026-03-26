@@ -2,7 +2,7 @@
 
 @section('content')
 
-<h1 class="text-lg font-semibold mb-4">Nova vrsta unosa</h1>
+<h1 id="formTitle">Nova vrsta unosa</h1>
 
 <input type="hidden" name="id" id="type_id">
 
@@ -40,6 +40,8 @@
 <script>
 function editType(typeJson) {
     let type = JSON.parse(typeJson);
+
+    document.getElementById('formTitle').innerText = 'Izmena vrste unosa';
 
     document.getElementById('type_id').value = type.id;
     document.querySelector('[name="code"]').value = type.code;

@@ -292,6 +292,45 @@ function autoFilter() {
     }
 }
 
+// Godišnji odmor VACATION - OTVARANJE
+document.getElementById('addVacationBtn').addEventListener('click', () => {
+    document.getElementById('vacationModal').classList.remove('hidden');
+
+    // postavi employee id
+    document.getElementById('vac_employee_id').value = window.currentEmployeeId;
+});
+// Godišnji odmor VACATION - ZATVARANJE
+function closeVacationModal() {
+    document.getElementById('vacationModal').classList.add('hidden');
+}
+// Godišnji odmor VACATION - SUBMIT
+document.getElementById('vacationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('/vacations', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: formData
+    })
+    .then(res => {
+    if (!res.ok) {
+        return res.json().then(err => { throw err });
+    }
+    return res.json();
+    })
+    .then(data => {
+        closeVacationModal();
+        alert('Sačuvano!');
+    })
+    .catch(err => {
+        alert(err.error || 'Greška pri unosu');
+    });
+    });
+
 // EVENTI
 document.addEventListener('change', function(e){
 

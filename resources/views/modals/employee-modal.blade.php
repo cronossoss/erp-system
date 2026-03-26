@@ -14,27 +14,59 @@
             <div class="flex gap-2">
                 <button id="editBtn" class="bg-yellow-400 px-3 py-1 rounded">Izmeni</button>
                 <button id="addWorkBtn" class="bg-green-500 text-white px-3 py-1 rounded">+ Unos rada</button>
+                <button id="addVacationBtn" class="bg-purple-500 text-white px-3 py-1 rounded">
+                    + Godišnji
+                </button>
                 <button id="saveBtn" class="bg-blue-600 text-white px-3 py-1 rounded hidden">Sačuvaj</button>
             </div>
         </div>
 
         <!-- VIEW MODE -->
         <div id="viewMode"></div>
+        <div class="mt-4 p-4 bg-blue-50 rounded-xl">
+
+            <h3 class="font-semibold text-lg mb-2">Godišnji odmor</h3>
+
+            @php
+                $year = now()->year;
+
+                $vacation = \App\Models\EmployeeVacation::where('employee_id', $employee->id)
+                    ->where('year', $year)
+                    ->first();
+
+                $used = $vacation?->used_days ?? 0;
+                $total = $vacation?->total_days ?? 0;
+                $remaining = $total - $used;
+            @endphp
+
+            <div class="grid grid-cols-3 gap-4 text-center">
+
+                <div class="bg-white p-3 rounded shadow">
+                    <div class="text-sm text-gray-500">Ukupno</div>
+                    <div class="text-xl font-bold">{{ $total }}</div>
+                </div>
+
+                <div class="bg-white p-3 rounded shadow">
+                    <div class="text-sm text-gray-500">Iskorišćeno</div>
+                    <div class="text-xl font-bold text-orange-500">{{ $used }}</div>
+                </div>
+
+                <div class="bg-white p-3 rounded shadow">
+                    <div class="text-sm text-gray-500">Preostalo</div>
+                    <div class="text-xl font-bold text-green-600">{{ $remaining }}</div>
+                </div>
+
+            </div>
+
+        </div>
+        <br><br>
 
         <button id="openWorkHistoryBtn"
             class="text-blue-600 text-sm underline mt-2">
             Pregled radnog vremena
         </button>
 
-        {{-- <!-- 🔥 LISTA UNOSA RADA -->
-        <div class="mt-6">
-            <h3 class="text-sm font-semibold mb-2">Unosi rada</h3>
-
-            <div id="workEntriesList" class="text-sm space-y-2 max-h-40 overflow-y-auto">
-                <!-- puni JS -->
-            </div>
-        </div> --}}
-
+        
 @php
     $types = \App\Models\WorkEntryType::all();
 @endphp
@@ -50,7 +82,7 @@
                 <label>Tip</label>
                 <select id="we_work_entry_type_id" name="work_entry_type_id" class="w-full border p-2">
                     @foreach($types as $type)
-                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                        <option value="{{ $type->id }}">[{{ $type->code }}] {{ $type->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -79,6 +111,40 @@
             <div class="mt-4 flex justify-end gap-2">
                 <button type="button" onclick="closeWorkEntryModal()">Otkaži</button>
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Sačuvaj</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<div id="vacationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-xl">
+
+        <h2 class="text-lg font-bold mb-4">Godišnji odmor</h2>
+
+        <form id="vacationForm">
+            <input type="hidden" name="employee_id" id="vac_employee_id">
+
+            <div class="mb-2">
+                <label>Od</label>
+                <input type="date" name="date_from" class="w-full border p-2">
+            </div>
+
+            <div class="mb-2">
+                <label>Do</label>
+                <input type="date" name="date_to" class="w-full border p-2">
+            </div>
+
+            <div class="mb-2">
+                <label>Napomena</label>
+                <textarea name="note" class="w-full border p-2"></textarea>
+            </div>
+
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="button" onclick="closeVacationModal()">Otkaži</button>
+                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded">
+                    Sačuvaj
+                </button>
             </div>
         </form>
 

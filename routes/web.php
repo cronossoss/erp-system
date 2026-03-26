@@ -10,6 +10,7 @@ use App\Http\Controllers\OrganizationalGroupController;
 use App\Http\Controllers\ContractTypeController;
 use App\Http\Controllers\WorkEntryController;
 use App\Http\Controllers\WorkEntryTypeController;
+use App\Http\Controllers\VacationController;
 
 
 
@@ -27,6 +28,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn'])
         ->name('attendance.checkin');
     Route::post('/work-entries', [WorkEntryController::class, 'store'])->name('work-entries.store');
+
+    Route::post('/vacations', [VacationController::class, 'store']);
+
     Route::get('/work-entry-types', fn() => \App\Models\WorkEntryType::all());
     Route::get('/employees/{id}/work-entries', function ($id) {
 
@@ -36,8 +40,8 @@ Route::middleware('auth')->group(function () {
         if (request('from') && request('to')) {
             $query->whereBetween('date', [request('from'), request('to')]);
         }
-    Route::resource('work-entry-types', WorkEntryTypeController::class)
-    ->middleware('auth');
+        Route::resource('work-entry-types', WorkEntryTypeController::class)
+            ->middleware('auth');
         return $query->orderByDesc('date')->get();
     });
 

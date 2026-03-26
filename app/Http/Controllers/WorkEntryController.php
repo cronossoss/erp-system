@@ -1,14 +1,10 @@
 <?php
 
-// app/Http/Controllers/WorkEntryController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\WorkEntry;
-use App\Models\WorkEntryType;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 use App\Models\EmployeeVacation;
+use Illuminate\Http\Request;
 
 class WorkEntryController extends Controller
 {
@@ -33,13 +29,14 @@ class WorkEntryController extends Controller
             'note' => $request->note,
         ]);
 
-        $type = $entry->type;
+        // Učitaj relaciju
+        $entry->load('type');
 
-        $types = WorkEntryType::orderBy('code')->get();
+        $type = $entry->type;
 
         if ($type && $type->affects_vacation) {
 
-            $year = date('Y', strtotime($entry->date));
+            $year = \Carbon\Carbon::parse($entry->date)->year;
 
             $vacation = EmployeeVacation::firstOrCreate(
                 [
@@ -52,7 +49,6 @@ class WorkEntryController extends Controller
             );
 
             $vacation->increment('used_days');
-     
         }
 
         return response()->json(['success' => true]);
