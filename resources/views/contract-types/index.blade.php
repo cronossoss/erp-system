@@ -41,7 +41,8 @@
     <td class="p-2 text-right space-x-2">
 
         <button 
-            onclick='editType(@json($t))'
+            data-type='@json($t)'
+            onclick="editType(this.dataset.type)"
             class="bg-yellow-400 px-2 py-1 rounded">
             ✏️
         </button>

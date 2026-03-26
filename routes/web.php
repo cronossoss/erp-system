@@ -9,6 +9,8 @@ use App\Http\Controllers\OrganizationalUnitController;
 use App\Http\Controllers\OrganizationalGroupController;
 use App\Http\Controllers\ContractTypeController;
 use App\Http\Controllers\WorkEntryController;
+use App\Http\Controllers\WorkEntryTypeController;
+
 
 
 Route::get('/', function () {
@@ -34,12 +36,16 @@ Route::middleware('auth')->group(function () {
         if (request('from') && request('to')) {
             $query->whereBetween('date', [request('from'), request('to')]);
         }
-
+    Route::resource('work-entry-types', WorkEntryTypeController::class)
+    ->middleware('auth');
         return $query->orderByDesc('date')->get();
     });
 
     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut'])
         ->name('attendance.checkout');
+    Route::middleware(['auth'])->group(function () {
+        Route::resource('work-entry-types', WorkEntryTypeController::class);
+    });
 
     // ✅ EMPLOYEES
     Route::get('/employees/search', [EmployeeController::class, 'search']);

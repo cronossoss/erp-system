@@ -5,8 +5,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\WorkEntry;
+use App\Models\WorkEntryType;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\EmployeeVacation;
 
 class WorkEntryController extends Controller
 {
@@ -20,7 +22,7 @@ class WorkEntryController extends Controller
             'time_to' => 'nullable'
         ]);
 
-        WorkEntry::create([
+        $entry = WorkEntry::create([
             'employee_id' => $request->employee_id,
             'work_entry_type_id' => $request->work_entry_type_id,
             'date' => $request->date,
@@ -30,6 +32,28 @@ class WorkEntryController extends Controller
                 : null,
             'note' => $request->note,
         ]);
+
+        $type = $entry->type;
+
+        $types = WorkEntryType::orderBy('code')->get();
+
+        if ($type && $type->affects_vacation) {
+
+            $year = date('Y', strtotime($entry->date));
+
+            $vacation = EmployeeVacation::firstOrCreate(
+                [
+                    'employee_id' => $entry->employee_id,
+                    'year' => $year
+                ],
+                [
+                    'total_days' => 20
+                ]
+            );
+
+            $vacation->increment('used_days');
+     
+        }
 
         return response()->json(['success' => true]);
     }

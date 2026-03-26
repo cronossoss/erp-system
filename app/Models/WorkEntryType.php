@@ -7,16 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class WorkEntryType extends Model
 {
     protected $fillable = [
-    'employee_id',
-    'work_entry_type_id',
-    'date',
-    'time_from',
-    'time_to',
-    'note'
-];
-
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class);
-    }
+        'code',
+        'name',
+        'is_paid',
+        'counts_as_work',
+        'affects_vacation',
+    ];
 }

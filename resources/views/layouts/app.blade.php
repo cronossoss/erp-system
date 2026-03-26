@@ -15,7 +15,7 @@
     <div class="flex h-screen">
 
         <!-- SIDEBAR -->
-        <aside class="w-64 bg-gray-900 text-white flex flex-col">
+        <aside class="w-56 bg-gray-900 text-white flex flex-col">
 
             <div class="p-4 text-xl font-bold border-b border-gray-700 text-center">
                 Poslovni softwer<br>Kompanije
@@ -64,6 +64,11 @@
                     ⚙️ Vrste ugovora
                 </a>
 
+                <a href="{{ route('work-entry-types.index') }}"
+                class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-800">
+                    📋 Vrste unosa
+                </a>
+
 
             </nav>
 
@@ -71,7 +76,7 @@
             <div class="text-sm text-gray-600">
                 Ulogovan: 
                 <span 
-                    class="font-semibold cursor-pointer hover:underline hover:text-blue-600"
+                    class="font-semibold text-white cursor-pointer hover:underline hover:text-blue-600"
                     onclick="openMyProfile()"
                 >
                     {{ auth()->user()->employee?->first_name }}
@@ -86,25 +91,27 @@
         <div class="flex-1 flex flex-col">
 
             <!-- TOPBAR -->
-            <header class="bg-white shadow px-6 py-3 flex justify-between items-center">
-                <h1 class="font-semibold text-lg">@yield('title')</h1>
+            <header class="flex justify-between items-center px-4 py-2 bg-gray-100 border-b">
 
+                {{-- LEVO --}}
+                <div>
+                    @if(auth()->user()->employee)
+                        Dobrodošao: {{ auth()->user()->employee->first_name }}
+                    @endif
+                </div>
+
+                {{-- DESNO --}}
                 <div class="flex items-center gap-4">
+                    👤 <span class="font-semibold">{{ auth()->user()->name }}</span>
 
-                    <div class="text-sm text-gray-600">
-                        👤 {{ auth()->user()->name ?? 'User' }}
-                    </div>
-
-                    <!-- LOGOUT -->
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit"
-                            class="text-red-500 hover:text-red-700 text-sm font-medium">
+                        <button type="submit" class="font-semibold text-red-500 hover:underline">
                             Logout
                         </button>
                     </form>
-
                 </div>
+
             </header>
 
             <!-- CONTENT -->

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('code')->unique(); // break, private, work
 
             $table->boolean('is_paid')->default(true);
+            $table->boolean('counts_as_work')->default(false);
+            $table->boolean('affects_vacation')->default(false);
 
             $table->timestamps();
         });
